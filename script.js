@@ -1307,7 +1307,7 @@ function renderExamGate() {
     ['Maximum marks', (sectionsTotal * 2).toFixed(1)],
     ['Target exam', examItem.code]
   ];
-  return `<div class="exam-shell exam-v4">
+  return `<div class="exam-shell exam-v4 exam-gate-shell">
     <header class="exam-header">
       <div class="exam-brand">
         <div class="exam-logo">TCS</div>
