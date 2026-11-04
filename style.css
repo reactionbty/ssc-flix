@@ -2053,3 +2053,238 @@ body.light .dashboard-metric-icon { background: #f5f2fc; border-color: #e5def8; 
   .dashboard-view-all { font-size: 9px; }
   .dashboard-intro-actions .btn { font-size: 9px; padding-inline: 9px; }
 }
+
+
+/* ============================================================
+   DASHBOARD RESPONSIVE POLISH — desktop / tablet / phone
+   Overrides the first refinement pass without changing actions.
+   ============================================================ */
+
+/* Desktop: give the greeting more structure and the test cards
+   enough room to read comfortably without increasing page length. */
+.dashboard-page-v2 {
+  width: 100%;
+  max-width: 1200px;
+  gap: 18px;
+}
+
+.dashboard-intro {
+  grid-template-columns: minmax(0, 1fr) 258px;
+  gap: 14px;
+}
+
+.dashboard-intro-copy {
+  padding: 17px 20px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background:
+    radial-gradient(520px 220px at 0% 0%, rgba(var(--accent-rgb), .11), transparent 72%),
+    var(--panel);
+}
+
+.dashboard-intro-copy h2 {
+  font-size: clamp(24px, 2vw, 30px);
+}
+
+.dashboard-intro-copy p {
+  max-width: 610px;
+  font-size: 12px;
+}
+
+.dashboard-target {
+  padding: 16px;
+  box-shadow: none;
+}
+
+.dashboard-section-heading {
+  margin-bottom: 10px;
+}
+
+.dashboard-metrics {
+  gap: 10px;
+}
+
+.dashboard-metric {
+  padding: 13px 14px;
+  min-height: 96px;
+}
+
+.dashboard-metric-top {
+  min-height: 29px;
+}
+
+.dashboard-recommendations-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.dashboard-recommend-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "head head"
+    "title action"
+    "meta action";
+  align-items: center;
+  column-gap: 14px;
+  row-gap: 7px;
+  padding: 13px 14px;
+}
+
+.dashboard-recommend-card-head { grid-area: head; }
+.dashboard-recommend-card h4 {
+  grid-area: title;
+  align-self: end;
+  min-height: 0;
+  max-width: 330px;
+}
+.dashboard-recommend-meta {
+  grid-area: meta;
+  align-self: start;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  padding-top: 7px;
+}
+.dashboard-recommend-card > .btn {
+  grid-area: action;
+  align-self: center;
+  min-width: 112px;
+  white-space: nowrap;
+}
+
+.dashboard-view-all { min-height: 34px; }
+
+/* Tablet: keep the content balanced when the side navigation
+   becomes a drawer and available width changes. */
+@media (max-width: 1023px) {
+  .dashboard-page-v2 { gap: 17px; }
+  .dashboard-intro {
+    grid-template-columns: minmax(0, 1fr) 235px;
+    gap: 12px;
+  }
+  .dashboard-intro-copy { padding: 15px 17px; }
+  .dashboard-target { padding: 14px; }
+  .dashboard-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-recommendations-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-recommend-card { column-gap: 10px; }
+}
+
+/* Narrow tablets and large phones: stack the target as a compact
+   summary instead of squeezing the greeting into a narrow column. */
+@media (max-width: 820px) {
+  .dashboard-intro { grid-template-columns: minmax(0, 1fr); }
+  .dashboard-intro-copy { padding: 16px 18px; }
+  .dashboard-target {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 14px;
+  }
+  .dashboard-target-label { display: none; }
+  .dashboard-target-main { margin: 0; }
+  .dashboard-target-footer {
+    justify-content: flex-end;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .dashboard-target-footer span:last-child { display: none; }
+}
+
+/* Phones: compact but touch-friendly. Metrics remain a 2x2 grid;
+   recommended tests become readable, one-column action rows. */
+@media (max-width: 700px) {
+  .dashboard-page-v2 { gap: 15px; }
+  .dashboard-intro-copy { padding: 15px 15px 14px; }
+  .dashboard-intro-copy h2 {
+    margin-top: 8px;
+    font-size: clamp(23px, 6.2vw, 27px);
+    line-height: 1.18;
+    overflow-wrap: anywhere;
+  }
+  .dashboard-intro-copy p { font-size: 11px; line-height: 1.55; }
+  .dashboard-intro-actions { gap: 8px; margin-top: 13px; }
+  .dashboard-intro-actions .btn {
+    min-height: 43px;
+    padding: 10px 11px;
+    font-size: 10px;
+  }
+  .dashboard-target-main { gap: 9px; }
+  .dashboard-target-icon { width: 36px; height: 36px; flex-basis: 36px; }
+  .dashboard-target-main strong { font-size: 14px; }
+  .dashboard-target-main small { font-size: 9px; }
+  .dashboard-target-footer span:first-child { font-size: 9px; }
+  .dashboard-section-heading h3 { font-size: 13px; }
+  .dashboard-section-heading p { font-size: 9px; }
+  .dashboard-metrics { gap: 8px; }
+  .dashboard-metric {
+    min-height: 91px;
+    padding: 10px 11px;
+    border-radius: 11px;
+  }
+  .dashboard-metric-top { gap: 5px; font-size: 8px; }
+  .dashboard-metric-icon { width: 26px; height: 26px; flex-basis: 26px; }
+  .dashboard-metric > strong { margin-top: 7px; font-size: 17px; }
+  .dashboard-metric > small { font-size: 8px; }
+  .dashboard-recommendations-grid { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .dashboard-recommend-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "head head"
+      "title action"
+      "meta action";
+    gap: 6px 10px;
+    padding: 11px 12px;
+    border-radius: 11px;
+  }
+  .dashboard-recommend-card-head { gap: 7px; }
+  .dashboard-recommend-icon { width: 28px; height: 28px; flex-basis: 28px; }
+  .dashboard-recommend-type { font-size: 8.5px; }
+  .dashboard-recommend-time { font-size: 8px; }
+  .dashboard-recommend-card h4 {
+    max-width: none;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+  .dashboard-recommend-meta {
+    gap: 7px;
+    padding-top: 6px;
+    font-size: 8px;
+  }
+  .dashboard-recommend-card > .btn {
+    min-width: 92px;
+    min-height: 38px;
+    padding: 8px 9px;
+    font-size: 9px;
+  }
+  .dashboard-view-all { min-height: 36px; font-size: 9px; }
+}
+
+/* Very narrow phones: prevent action buttons and metric labels
+   from colliding at 320–360px widths. */
+@media (max-width: 380px) {
+  .dashboard-intro-actions { display: grid; grid-template-columns: 1fr; width: 100%; }
+  .dashboard-intro-actions .btn { width: 100%; }
+  .dashboard-metric-top { align-items: flex-start; }
+  .dashboard-metric-top > span:first-child { max-width: 82px; line-height: 1.35; }
+  .dashboard-recommend-card { column-gap: 7px; padding: 10px; }
+  .dashboard-recommend-card > .btn { min-width: 84px; padding-inline: 7px; }
+  .dashboard-recommend-time { font-size: 7px; }
+  .dashboard-section-heading p { max-width: 190px; }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-metric,
+  .dashboard-recommend-card,
+  .dashboard-view-all {
+    transition: none;
+  }
+  .dashboard-metric:hover,
+  .dashboard-recommend-card:hover {
+    transform: none;
+  }
+}
