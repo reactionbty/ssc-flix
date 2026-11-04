@@ -2288,3 +2288,264 @@ body.light .dashboard-metric-icon { background: #f5f2fc; border-color: #e5def8; 
     transform: none;
   }
 }
+
+
+/* ============================================================
+   MOBILE APP HEADER — compact two-row layout
+   Scope: authenticated workspace header only (.topbar).
+   Desktop/tablet header and standalone landing nav are untouched.
+   ============================================================ */
+@media (max-width: 600px) {
+  .topbar {
+    position: relative;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 38px 36px 36px 38px;
+    grid-template-areas:
+      "menu exam lang theme alerts profile"
+      "search search search search search search";
+    align-items: center;
+    justify-content: stretch;
+    gap: 7px;
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    flex: 0 0 auto;
+    padding: 9px 10px 10px;
+    z-index: 20;
+  }
+
+  /* Flatten the two wrappers so the controls can use the header grid. */
+  .topbar > .top-left,
+  .topbar > .top-actions {
+    display: contents;
+  }
+
+  .topbar .hamburger {
+    grid-area: menu;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    flex: none;
+    border-radius: 10px;
+  }
+
+  .topbar .exam-pill {
+    grid-area: exam;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: 36px;
+    gap: 6px;
+    padding: 4px 7px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .topbar .exam-pill-icon {
+    width: 25px;
+    height: 25px;
+    flex: 0 0 25px;
+    border-radius: 7px;
+  }
+
+  .topbar .exam-pill-text {
+    display: block;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .topbar .exam-pill-text strong {
+    display: block;
+    overflow: hidden;
+    font-size: 9px;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar .exam-pill-text small,
+  .topbar .exam-pill-days {
+    display: none;
+  }
+
+  .topbar .exam-pill > .icon-svg {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
+  }
+
+  .topbar .search-wrap {
+    grid-area: search;
+    display: block;
+    order: initial;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+  }
+
+  .topbar .search-input {
+    width: 100%;
+    height: 39px;
+    min-height: 39px;
+    padding: 9px 12px 9px 36px;
+    border-radius: 10px;
+    font-size: 11px;
+  }
+
+  .topbar .lang-btn {
+    grid-area: lang;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    min-width: 38px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 10px;
+    font-size: 9px;
+  }
+
+  .topbar .lang-btn .icon-svg { display: none; }
+  .topbar .lang-btn span { line-height: 1; }
+
+  .topbar .icon-btn[data-action="toggle-mode"] {
+    grid-area: theme;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  .topbar .icon-btn[data-action="notifications"] {
+    grid-area: alerts;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 10px;
+  }
+
+  .topbar .icon-btn .dot {
+    top: 5px;
+    right: 5px;
+    width: 6px;
+    height: 6px;
+  }
+
+  .topbar .profile-btn,
+  .topbar .top-actions > .btn[data-action="open-auth"] {
+    grid-area: profile;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    justify-self: end;
+    width: 38px;
+    min-width: 38px;
+    height: 36px;
+    min-height: 36px;
+    padding: 3px;
+    border-radius: 10px;
+  }
+
+  .topbar .profile-btn .avatar {
+    width: 27px !important;
+    height: 27px !important;
+    flex: 0 0 27px !important;
+    font-size: 10px !important;
+  }
+
+  .topbar .profile-btn .profile-name,
+  .topbar .profile-btn > .icon-svg,
+  .topbar .top-actions > .btn[data-action="open-auth"] {
+    font-size: 0;
+  }
+
+  .topbar .profile-menu,
+  .topbar .notification-menu {
+    top: calc(100% + 5px);
+    right: 8px;
+    left: auto;
+    width: min(285px, calc(100vw - 16px));
+    max-width: calc(100vw - 16px);
+    z-index: 35;
+  }
+
+  .topbar .exam-switch-menu {
+    top: calc(100% + 5px);
+    right: 8px;
+    left: 8px;
+    width: auto;
+    max-width: none;
+    max-height: min(72vh, 560px);
+    overflow-y: auto;
+    z-index: 36;
+  }
+
+  .topbar .exam-switch-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-height: none;
+  }
+
+  body.light .topbar {
+    background: rgba(250, 249, 254, .96);
+    border-bottom-color: #e5e0f1;
+  }
+}
+
+/* Extra-narrow phones: slightly tighter action cluster, while keeping
+   every control visible and comfortably tappable. */
+@media (max-width: 360px) {
+  .topbar {
+    grid-template-columns: 34px minmax(0, 1fr) 35px 34px 34px 35px;
+    gap: 5px;
+    padding-inline: 8px;
+  }
+
+  .topbar .hamburger {
+    width: 34px;
+    height: 36px;
+  }
+
+  .topbar .lang-btn {
+    width: 35px;
+    min-width: 35px;
+  }
+
+  .topbar .icon-btn[data-action="toggle-mode"],
+  .topbar .icon-btn[data-action="notifications"] {
+    width: 34px;
+  }
+
+  .topbar .profile-btn,
+  .topbar .top-actions > .btn[data-action="open-auth"] {
+    width: 35px;
+    min-width: 35px;
+  }
+
+  .topbar .exam-pill {
+    gap: 5px;
+    padding-inline: 6px;
+  }
+}
+
+/* Make all header controls keyboard-visible and keep touch targets clear. */
+@media (pointer: coarse) and (max-width: 600px) {
+  .topbar .hamburger,
+  .topbar .lang-btn,
+  .topbar .icon-btn,
+  .topbar .profile-btn {
+    min-height: 40px;
+  }
+  .topbar .search-input { min-height: 42px; }
+}
