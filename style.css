@@ -5293,3 +5293,94 @@ body.light .exam-v4 .gate-instructions-v2 { background-color: #fff; }
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+
+/* CBT answer list fix — keep every option in its own normal-flow row */
+.exam-v4 .question-content {
+  grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: min-content;
+  align-content: start;
+}
+.exam-v4 .options-list {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  height: auto;
+  min-height: max-content;
+  overflow: visible;
+}
+.exam-v4 .options-list > .option-btn {
+  position: relative;
+  inset: auto;
+  float: none;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: 100%;
+  height: auto !important;
+  min-height: 49px;
+  max-height: none;
+  margin: 0 !important;
+  transform: none;
+  grid-column: auto;
+  grid-row: auto;
+}
+.exam-v4 .options-list > .solution-info {
+  position: relative;
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+@media (max-width: 767px) {
+  .exam-v4.exam-live-shell .question-content {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 10px;
+    height: auto !important;
+    min-height: max-content;
+    overflow: visible !important;
+  }
+  .exam-v4.exam-live-shell .options-label {
+    flex: 0 0 auto;
+    margin: 4px 0 0;
+  }
+  .exam-v4.exam-live-shell .options-list {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 9px;
+    width: 100%;
+    min-height: max-content;
+    height: auto;
+    overflow: visible !important;
+  }
+  .exam-v4.exam-live-shell .options-list > .option-btn {
+    display: flex;
+    position: relative;
+    flex: 0 0 auto;
+    width: 100%;
+    min-height: 50px;
+    height: auto !important;
+    max-height: none;
+    margin: 0 !important;
+    padding: 10px 11px;
+    transform: none;
+  }
+  .exam-v4.exam-live-shell .exam-actions {
+    position: relative;
+    flex: 0 0 auto;
+    width: 100%;
+    margin: 0;
+    clear: both;
+  }
+}
