@@ -1279,55 +1279,93 @@ function renderExam() {
 function renderExamGate() {
   const examItem = currentExam();
   const activeQuestions = allQuestions();
-  const activeSections = [...new Set(activeQuestions.map(question => question.sectionId))].map(id => SECTIONS.find(section => section.id === id));
+  const activeSections = [...new Set(activeQuestions.map(question => question.sectionId))]
+    .map(id => SECTIONS.find(section => section.id === id)).filter(Boolean);
   const sectionsTotal = activeQuestions.length;
   const rules = [
-    `The countdown timer at the top right corner displays the <strong>remaining time</strong> for this paper. The test starts only after you press <strong>"I am Ready to Begin"</strong>.`,
-    `The question palette on the right shows the <strong>status of every question</strong> using the colour codes explained in the legend. Use it to navigate between questions of the current section.`,
-    `To answer a question, click the option to <strong>select</strong> it, then press <strong>"Save &amp; Next"</strong>. "Mark for Review &amp; Next" flags a question for later revision.`,
-    `To <strong>deselect</strong> a chosen answer, press "Clear Response". You may change an answer any number of times before the timer ends.`,
-    `Questions from one section can be attempted only while that section tab is <strong>active</strong>. Sections: ${activeSections.map(item => esc(isHindi() ? item.nameHi : item.name) + ' (' + questionsFor(item.id).length + ')').join(', ')}.`,
-    `Clicking "Submit Test" ends the attempt and generates your <strong>score report</strong>. You cannot return once submitted — an auto-submit runs when the timer reaches zero.`,
-    `You may toggle between <strong>English and Hindi</strong> for questions anytime from the header language button.`,
-    `This is a <strong>sample demo attempt</strong>. Do not refresh or leave the page while the exam is running; the local session keeps your answers.`
+    `The countdown timer displays the <strong>remaining time</strong> for this paper. The timer starts only after you press <strong>“I am Ready to Begin”</strong>.`,
+    `The question palette shows the <strong>status of every question</strong> using the colour codes in the legend. Use it to navigate within the active section.`,
+    `Select an option and press <strong>“Save &amp; Next”</strong>. Use <strong>“Mark for Review &amp; Next”</strong> to flag a question you want to revisit.`,
+    `To <strong>deselect</strong> a chosen answer, press “Clear Response”. You may change an answer any number of times before the timer ends.`,
+    `Questions from a section can be attempted only while that section tab is <strong>active</strong>. Sections: ${activeSections.map(item => esc(isHindi() ? item.nameHi : item.name) + ' (' + questionsFor(item.id).length + ')').join(', ')}.`,
+    `Pressing <strong>“Submit Test”</strong> ends your attempt and generates the score report. You cannot return after submission. The test is automatically submitted when the timer reaches zero.`,
+    `You may switch between <strong>English and Hindi</strong> for questions using the language control in the exam header.`,
+    `This is a <strong>sample demo attempt</strong>. Do not refresh or leave the page while the exam is running. Your answers are held in this local session.`
+  ];
+  const legend = [
+    ['answered', '1', 'Answered'],
+    ['unanswered', '2', 'Not answered'],
+    ['marked', '3', 'Marked for review'],
+    ['both', '4', 'Answered & marked'],
+    ['current', '5', 'Current question']
+  ];
+  const facts = [
+    ['Total questions', sectionsTotal],
+    ['Sections', activeSections.length],
+    ['Duration', formatTime(exam.timeLeft)],
+    ['Marking scheme', '+2.0 / −0.5'],
+    ['Maximum marks', (sectionsTotal * 2).toFixed(1)],
+    ['Target exam', examItem.code]
   ];
   return `<div class="exam-shell exam-v4">
-    <header class="exam-header"><div class="exam-brand"><div class="exam-logo">TCS</div><div><h1>${esc(exam.title)} <span class="tag">Official CBT Engine</span></h1><p>Candidate: ${esc(state.user.name)} | Roll: ${esc(state.user.rollNo)}</p></div></div></header>
-    <div class="exam-gate">
-      <aside class="exam-gate-side">
-        <div class="gate-card">
-          <h4>STATUS LEGEND</h4>
-          <div class="gate-legend">
-            <div class="legend-item"><span class="legend-number answered">1</span>Answered</div>
-            <div class="legend-item"><span class="legend-number unanswered">2</span>Not Answered</div>
-            <div class="legend-item"><span class="legend-number marked">3</span>Marked for Review</div>
-            <div class="legend-item"><span class="legend-number both">4</span>Ans &amp; Marked</div>
-            <div class="legend-item"><span class="legend-number current">5</span>Viewing Question</div>
-          </div>
+    <header class="exam-header">
+      <div class="exam-brand">
+        <div class="exam-logo">TCS</div>
+        <div>
+          <h1>${esc(exam.title)} <span class="tag">Official CBT Engine</span></h1>
+          <p>Candidate: ${esc(state.user.name)} | Roll: ${esc(state.user.rollNo)}</p>
         </div>
-        <div class="gate-card">
-          <h4>PAPER AT A GLANCE</h4>
-          <div class="gate-facts">
-            <div class="fact"><small>Total Questions</small><strong>${sectionsTotal}</strong></div>
-            <div class="fact"><small>Sections</small><strong>${activeSections.length}</strong></div>
-            <div class="fact"><small>Duration</small><strong>${formatTime(exam.timeLeft)}</strong></div>
-            <div class="fact"><small>Marking</small><strong>+2.0 / −0.5</strong></div>
-            <div class="fact"><small>Maximum Marks</small><strong>${(sectionsTotal * 2).toFixed(1)}</strong></div>
-            <div class="fact"><small>Target Exam</small><strong>${esc(examItem.code)}</strong></div>
-          </div>
+      </div>
+    </header>
+    <main class="exam-gate exam-gate-v2">
+      <section class="gate-welcome">
+        <span class="gate-welcome-icon">${iconSvg('clipboard-check', 21)}</span>
+        <div class="gate-welcome-copy">
+          <span class="gate-kicker">BEFORE YOU BEGIN</span>
+          <h2>Read the exam instructions</h2>
+          <p>Review the paper details and important rules. Your exam timer will start only when you are ready.</p>
         </div>
-      </aside>
-      <section class="exam-gate-main">
-        <span class="gate-kicker">General Instructions — Please read carefully</span>
-        <div class="gate-scroll">
-          <ol class="gate-rules">${rules.map(rule => `<li>${rule}</li>`).join('')}</ol>
-        </div>
-        <label class="gate-accept"><input type="checkbox" data-change="gate-accept" ${exam.gateAccepted ? 'checked' : ''}><span><strong>Declaration:</strong> I have read and understood the instructions above. I agree that in case of not observing any of them I am liable to be disqualified.</span></label>
-        <div class="gate-actions"><button class="btn btn-secondary" data-action="gate-exit">← Cancel</button><button class="btn btn-success" data-action="gate-begin" ${exam.gateAccepted ? '' : 'disabled'}>I am Ready to Begin →</button></div>
+        <span class="gate-question-count">${sectionsTotal} questions</span>
       </section>
-    </div>
+
+      <section class="gate-overview-v2">
+        <div class="gate-v2-section-heading">
+          <div><span class="gate-v2-eyebrow">PAPER OVERVIEW</span><h3>At a glance</h3></div>
+          <span class="gate-v2-exam-pill">${esc(examItem.code)}</span>
+        </div>
+        <div class="gate-facts-v2">
+          ${facts.map(([label, value]) => `<div class="gate-fact-v2"><span>${label}</span><strong>${esc(value)}</strong></div>`).join('')}
+        </div>
+      </section>
+
+      <section class="gate-legend-v2">
+        <div class="gate-v2-section-heading">
+          <div><span class="gate-v2-eyebrow">QUESTION PALETTE</span><h3>Know the status colours</h3></div>
+        </div>
+        <div class="gate-legend-list-v2">
+          ${legend.map(([status, number, label]) => `<div class="gate-legend-item-v2"><span class="legend-number ${status}">${number}</span><span>${label}</span></div>`).join('')}
+        </div>
+      </section>
+
+      <section class="exam-gate-main gate-instructions-v2">
+        <div class="gate-v2-section-heading">
+          <div><span class="gate-v2-eyebrow">IMPORTANT</span><h3>General instructions</h3></div>
+          <span class="gate-rule-count"> ${rules.length} rules</span>
+        </div>
+        <ol class="gate-rules gate-rules-v2">${rules.map(rule => `<li><span class="gate-rule-text">${rule}</span></li>`).join('')}</ol>
+        <label class="gate-accept gate-accept-v2">
+          <input type="checkbox" data-change="gate-accept" ${exam.gateAccepted ? 'checked' : ''}>
+          <span><strong>Declaration</strong><small>I have read and understood the instructions above. I agree to follow the exam rules and understand that failure to do so may lead to disqualification.</small></span>
+        </label>
+        <div class="gate-actions gate-actions-v2">
+          <button class="btn btn-secondary" data-action="gate-exit">Cancel</button>
+          <button class="btn btn-success" data-action="gate-begin" ${exam.gateAccepted ? '' : 'disabled'}>${iconSvg('play', 14)} I am Ready to Begin</button>
+        </div>
+      </section>
+    </main>
   </div>`;
 }
+
 function renderExamOverlays() {
   let html = '';
   if (exam.showInstructions) html += `<div class="modal-backdrop"><div class="modal medium"><button class="modal-close" data-action="instructions">×</button><h3>SSC CBT Exam Pattern Instructions</h3><p class="modal-sub">Please read the test guidelines before proceeding.</p><div class="solution-info">• Total Duration: <strong>60 Minutes</strong> for Tier 1 Paper.<br><br>• Marking Scheme: <strong>+2.0 Marks</strong> for correct answer | <strong>−0.5 Negative Marks</strong> for wrong attempt.<br><br>• Question Status Colors: Green = Answered, Red = Not Answered, Purple = Marked for Review.<br><br>• Switch between English & Hindi anytime using the top header language toggle.</div><div class="modal-actions"><button class="btn btn-primary" data-action="instructions">Return to Exam</button></div></div></div>`;
