@@ -3717,3 +3717,32 @@ body.light .exam-v4 .palette-footer, body.light .exam-v4 .palette-head { backgro
   .exam-v4 .exam-actions .row { grid-template-columns: 1fr; }
   .exam-v4 .palette-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
+
+
+/* Screenshot feedback — remove duplicate target panel and improve mobile scanability */
+@media (max-width: 767px) {
+  .dash-focus-aside {
+    display: none;
+  }
+  .dash-focus-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dash-stat-top {
+    font-size: 8px;
+    line-height: 1.4;
+  }
+  .dash-stat > small {
+    font-size: 8px;
+  }
+  .dash-stat > strong {
+    font-size: 17px;
+  }
+  .dash-recommend-action {
+    color: var(--accent-text);
+    border-color: rgba(var(--accent-rgb), .2);
+    background: rgba(var(--accent-rgb), .08);
+  }
+  .main-content {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}
