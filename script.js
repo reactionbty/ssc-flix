@@ -1016,49 +1016,77 @@ function renderWelcome() {
 function dashboardPage() {
   const examItem = currentExam();
   const metrics = [
-    { label: 'Mocks Attempted', value: '24 Tests', detail: '+3 this week', icon: 'file-text', color: 'indigo' },
-    { label: 'Avg Percentile', value: '96.4%', detail: 'Top 4% Aspirants', icon: 'trending-up', color: 'green' },
-    { label: 'Questions Solved', value: '2,840', detail: '89.2% Accuracy', icon: 'brain', color: 'amber' },
-    { label: 'Target Cutoff', value: String(examItem.cutoff), detail: `${examItem.code} Standard`, icon: 'target', color: 'accent' }
+    { label: 'Mocks attempted', value: '24 tests', detail: '+3 this week', icon: 'file-text', color: 'indigo' },
+    { label: 'Average percentile', value: '96.4%', detail: 'Top 4% of aspirants', icon: 'trending-up', color: 'green' },
+    { label: 'Questions solved', value: '2,840', detail: '89.2% accuracy', icon: 'brain', color: 'amber' },
+    { label: 'Target cutoff', value: String(examItem.cutoff), detail: `${examItem.code} standard`, icon: 'target', color: 'accent' }
   ];
+
   const recommendations = [
-    { title: `${examItem.code} Official Full Mock #09`, q: 100, time: '60 Mins', marks: examItem.totalMarks, level: 'Hard', icon: 'target', tone: 'rose', premium: false },
-    { title: `${examItem.code} Quantitative Speed Test`, q: 25, time: '20 Mins', marks: 50, level: 'Moderate', icon: 'zap', tone: 'amber', premium: false },
-    { title: `${examItem.code} PYQ Shift Simulation`, q: 100, time: '60 Mins', marks: examItem.totalMarks, level: 'PYQ', icon: 'history', tone: 'violet', premium: false },
-    { title: `${examItem.code} Pro Pass All-India Live Mock`, q: 100, time: '60 Mins', marks: examItem.totalMarks, level: 'PRO Tier', icon: 'crown', tone: 'gold', premium: true }
+    { title: `${examItem.code} Official Full Mock #09`, q: 100, time: '60 min', marks: examItem.totalMarks, level: 'Full mock', icon: 'target', tone: 'rose', premium: false },
+    { title: `${examItem.code} Quantitative Speed Test`, q: 25, time: '20 min', marks: 50, level: 'Sectional', icon: 'zap', tone: 'amber', premium: false },
+    { title: `${examItem.code} PYQ Shift Simulation`, q: 100, time: '60 min', marks: examItem.totalMarks, level: 'Previous year', icon: 'history', tone: 'violet', premium: false },
+    { title: `${examItem.code} Pro Pass All-India Live Mock`, q: 100, time: '60 min', marks: examItem.totalMarks, level: 'Pro series', icon: 'crown', tone: 'gold', premium: true }
   ];
-  return `<section class="page dashboard-page">
-    <div class="target-banner">
-      <span class="banner-ring banner-ring-one"></span><span class="banner-ring banner-ring-two"></span>
-      <div class="banner-copy">
-        <div class="banner-meta"><span class="banner-chip">${iconSvg('sparkles', 13)} Your preparation space</span><span class="banner-days">${iconSvg('clock', 12)} ${examItem.targetDays} Days Left</span></div>
-        <h2>Welcome back, ${esc(state.user.name)}!</h2>
-        <p>Small, focused sessions make a big difference. Your readiness score is <strong>148.5 / ${examItem.totalMarks}</strong> and the cutoff is <strong>Passed (+13.5 over Cutoff)</strong> — keep your SSC preparation moving.</p>
-        <div class="banner-actions">
-          <button class="btn-banner btn-banner-white" data-action="resume-mock">${iconSvg('play-circle', 16)} Resume Mock #08</button>
-          <button class="btn-banner btn-banner-ghost" data-action="nav" data-tab="mocks">Take a mock test ${iconSvg('arrow-right', 15)}</button>
+
+  return `<section class="page dashboard-page dashboard-page-v2">
+    <header class="dashboard-intro">
+      <div class="dashboard-intro-copy">
+        <span class="dashboard-eyebrow">${iconSvg('sparkles', 13)} YOUR PREPARATION SPACE</span>
+        <h2>Welcome back, ${esc(state.user.name)}<span>!</span></h2>
+        <p>Make today count. Continue your preparation with a mock test or a focused practice session.</p>
+        <div class="dashboard-intro-actions">
+          <button class="btn btn-primary" data-action="resume-mock">${iconSvg('play-circle', 15)} Resume Mock #08</button>
+          <button class="btn btn-secondary" data-action="nav" data-tab="mocks">Explore mock tests ${iconSvg('arrow-right', 14)}</button>
         </div>
       </div>
-      <svg class="banner-art" width="168" height="118" viewBox="0 0 168 118" fill="none" aria-hidden="true">
-        <ellipse cx="86" cy="110" rx="52" ry="8" fill="rgba(14, 9, 26,.22)"/>
-        <rect x="34" y="92" width="104" height="13" rx="4" fill="#fcd34d"/>
-        <rect x="42" y="77" width="88" height="13" rx="4" fill="#fb923c"/>
-        <rect x="52" y="62" width="68" height="13" rx="4" fill="#2dd4bf"/>
-        <path d="M86 12 132 32 86 52 40 32 Z" fill="#ffffff"/>
-        <path d="M64 41 v13 c0 6 44 6 44 0 V41 L86 49 Z" fill="rgba(255,255,255,.78)"/>
-        <path d="M132 32 v20" stroke="#fcd34d" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="132" cy="56" r="3.4" fill="#fcd34d"/>
-      </svg>
-    </div>
-    <div class="grid grid-4 metric-grid">
-      ${metrics.map(item => `<article class="metric-tile"><div class="metric-top"><span>${item.label}</span><span class="metric-icon ${item.color}">${iconSvg(item.icon,16)}</span></div><strong>${item.value}</strong><small>${item.detail}</small></article>`).join('')}
-    </div>
-    <div class="section-block recommendations-block">
-      <div class="row-between recommendation-heading"><h3>${iconSvg('sparkles',16)} Recommended Tests for ${esc(examItem.code)}</h3><button class="text-link" data-action="nav" data-tab="mocks">View All Mocks →</button></div>
-      <div class="grid grid-4">
-        ${recommendations.map(item => `<article class="recommend-card tone-${item.tone}${item.premium ? ' premium' : ''}"><div class="recommend-top"><span class="recommend-icon">${iconSvg(item.icon, 16)}</span><span class="tag">${item.level}</span><span class="muted mono">${item.time}</span></div><h4>${esc(item.title)}</h4><div class="recommend-meta"><span>${item.q} Questions</span><span>${item.marks} Marks</span></div><button class="btn ${item.premium && state.user.plan === 'FREE' ? 'btn-warning' : 'btn-primary'} btn-block" data-action="start-recommendation" data-title="${esc(item.title)}" data-premium="${item.premium}">${item.premium && state.user.plan === 'FREE' ? `${iconSvg('lock',13)} Unlock with Pro Pass` : 'Attempt Test'}</button></article>`).join('')}
+      <aside class="dashboard-target">
+        <div class="dashboard-target-label">CURRENT TARGET</div>
+        <div class="dashboard-target-main">
+          <span class="dashboard-target-icon">${examIconSvg(examItem.id, 19)}</span>
+          <div><strong>${esc(examItem.code)}</strong><small>${esc(examItem.tier)}</small></div>
+        </div>
+        <div class="dashboard-target-footer">
+          <span>${iconSvg('clock', 12)} ${examItem.targetDays} days left</span>
+          <span>${esc(examItem.name)}</span>
+        </div>
+      </aside>
+    </header>
+
+    <section class="dashboard-section dashboard-overview">
+      <div class="dashboard-section-heading">
+        <div><h3>Preparation overview</h3><p>A quick look at your activity</p></div>
       </div>
-    </div>
+      <div class="dashboard-metrics">
+        ${metrics.map(item => `<article class="dashboard-metric">
+          <div class="dashboard-metric-top">
+            <span>${item.label}</span>
+            <span class="dashboard-metric-icon ${item.color}">${iconSvg(item.icon, 16)}</span>
+          </div>
+          <strong>${item.value}</strong>
+          <small>${item.detail}</small>
+        </article>`).join('')}
+      </div>
+    </section>
+
+    <section class="dashboard-section dashboard-recommendations">
+      <div class="dashboard-section-heading dashboard-recommendation-heading">
+        <div><h3>Recommended practice</h3><p>Pick your next session and keep moving forward</p></div>
+        <button class="dashboard-view-all" data-action="nav" data-tab="mocks">View all mocks ${iconSvg('arrow-right', 14)}</button>
+      </div>
+      <div class="dashboard-recommendations-grid">
+        ${recommendations.map(item => `<article class="dashboard-recommend-card tone-${item.tone}${item.premium ? ' premium' : ''}">
+          <div class="dashboard-recommend-card-head">
+            <span class="dashboard-recommend-icon">${iconSvg(item.icon, 17)}</span>
+            <span class="dashboard-recommend-type">${item.level}</span>
+            <span class="dashboard-recommend-time">${iconSvg('clock', 12)} ${item.time}</span>
+          </div>
+          <h4>${esc(item.title)}</h4>
+          <div class="dashboard-recommend-meta"><span>${item.q} questions</span><span>${item.marks} marks</span></div>
+          <button class="btn ${item.premium && state.user.plan === 'FREE' ? 'btn-warning' : 'btn-primary'} btn-block" data-action="start-recommendation" data-title="${esc(item.title)}" data-premium="${item.premium}">${item.premium && state.user.plan === 'FREE' ? `${iconSvg('lock', 13)} Unlock Pro` : `${iconSvg('play', 12)} Start test`}</button>
+        </article>`).join('')}
+      </div>
+    </section>
   </section>`;
 }
 function mocksPage() {
