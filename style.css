@@ -4248,3 +4248,179 @@ body.light .exam-v4 .palette-footer, body.light .exam-v4 .palette-head { backgro
   .pyq-library-card .library-test-meta { gap: 6px 8px; font-size: 7px; }
   .pyq-library-card .library-test-side .btn { min-width: 112px; }
 }
+
+
+
+/* Dense mobile test cards — move score/status into a right-side action rail */
+@media (min-width: 361px) and (max-width: 767px) {
+  .mock-library-card,
+  .pyq-library-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 122px;
+    align-items: center;
+    gap: 9px;
+    padding: 11px;
+    min-height: 112px;
+  }
+  .mock-library-card .library-test-main,
+  .pyq-library-card .library-test-main {
+    grid-column: 1;
+    grid-row: 1;
+    min-width: 0;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .mock-library-card .library-test-icon,
+  .pyq-library-card .library-test-icon {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+    border-radius: 9px;
+  }
+  .mock-library-card .library-test-icon svg,
+  .pyq-library-card .library-test-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+  .mock-library-card .library-test-copy,
+  .pyq-library-card .library-test-copy {
+    min-width: 0;
+    gap: 6px;
+  }
+  .mock-card-heading h3,
+  .pyq-card-heading h3 {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+  .mock-card-badges,
+  .pyq-card-heading {
+    gap: 4px;
+  }
+  .mock-card-badges .library-tag,
+  .pyq-card-heading .library-tag {
+    min-height: 16px;
+    padding: 2px 5px;
+    font-size: 7px;
+  }
+  .mock-library-card .library-test-meta,
+  .pyq-library-card .library-test-meta {
+    gap: 5px 8px;
+    font-size: 7px;
+    line-height: 1.3;
+  }
+  .mock-library-card .library-test-meta span,
+  .pyq-library-card .library-test-meta span {
+    white-space: nowrap;
+  }
+  .mock-library-card .library-test-side,
+  .pyq-library-card .library-test-side {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 0;
+    padding: 0 0 0 9px;
+    border-top: 0;
+    border-left: 1px solid var(--border);
+  }
+  .mock-library-card .library-last-score,
+  .pyq-library-card .library-last-score {
+    display: grid;
+    gap: 3px;
+    text-align: left;
+  }
+  .mock-library-card .library-last-score small,
+  .pyq-library-card .library-last-score small {
+    font-size: 6px;
+  }
+  .mock-library-card .library-last-score strong,
+  .pyq-library-card .library-last-score strong {
+    font-size: 9px;
+    line-height: 1.2;
+  }
+  .mock-library-card .library-test-side .btn,
+  .pyq-library-card .library-test-side .btn {
+    width: 100%;
+    min-width: 0;
+    min-height: 35px;
+    padding: 7px 5px;
+    font-size: 8px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  /* Chapter practice follows the same compact, horizontal information flow. */
+  .chapter-test-card-v2 {
+    grid-template-columns: 30px minmax(0, 1fr) 98px;
+    align-items: center;
+    gap: 8px;
+    min-height: 82px;
+    padding: 10px;
+  }
+  .chapter-test-card-v2 .chapter-index {
+    width: 29px;
+    height: 29px;
+  }
+  .chapter-test-card-v2 .chapter-copy h3 {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+  .chapter-test-card-v2 .chapter-copy > small {
+    gap: 4px 7px;
+    font-size: 7px;
+  }
+  .chapter-test-card-v2 .chapter-start-button {
+    grid-column: 3;
+    grid-row: 1;
+    justify-self: stretch;
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    padding: 6px 5px;
+    font-size: 7px;
+  }
+}
+@media (max-width: 360px) {
+  .mock-library-card,
+  .pyq-library-card {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+  .mock-library-card .library-test-main,
+  .pyq-library-card .library-test-main {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .mock-library-card .library-test-side,
+  .pyq-library-card .library-test-side {
+    grid-column: 1;
+    grid-row: 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 42px;
+    padding: 8px 0 0;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+  .mock-library-card .library-test-side .btn,
+  .pyq-library-card .library-test-side .btn {
+    width: auto;
+    min-width: 112px;
+  }
+  .chapter-test-card-v2 {
+    grid-template-columns: 29px minmax(0, 1fr);
+    min-height: 0;
+  }
+  .chapter-test-card-v2 .chapter-start-button {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    width: auto;
+    min-width: 108px;
+  }
+}
