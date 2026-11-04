@@ -443,7 +443,7 @@ function makeInitialQuestionState() {
 }
 function loadState() {
   const base = {
-    user: { ...DEFAULT_USER }, activeTab: 'landing', selectedExamId: 'cgl', lang: 'en', accentTheme: 'violet', themeMode: 'dark',
+    user: { ...DEFAULT_USER }, activeTab: 'landing', selectedExamId: 'cgl', lang: 'en', accentTheme: 'violet', themeMode: 'light', themePreferenceSet: false,
     globalSearch: '', bookmarkedIds: ['r1', 'q2', 'e1', 'c2'], customNotes: {},
     userState: makeInitialQuestionState(), studyModeActive: false, showHintsMap: {}, billingCycle: 'annual', mocksView: 'full', sectionalSubject: 'all', pyqView: 'full', pyqYear: 'all', pyqSubject: 'all', practiceSubject: 'quant', bookmarksSubject: 'quant', customNotes: {}, myTestsView: 'attempted', leaderboardView: 'weekly',
     myTests: [
@@ -458,6 +458,8 @@ function loadState() {
     if (!saved) return { ...base, isNewVisit: true };
     return {
       ...base, ...saved, isNewVisit: false,
+      themeMode: saved.themePreferenceSet ? (saved.themeMode || 'light') : 'light',
+      themePreferenceSet: !!saved.themePreferenceSet,
       user: (() => { const u = { ...base.user, ...(saved.user || {}) }; delete u.avatar; u.avatarType = u.avatarType === 'photo' && u.avatarImage ? 'photo' : 'monogram'; return u; })(),
       userState: { ...base.userState, ...(saved.userState || {}) },
       customNotes: { ...base.customNotes, ...(saved.customNotes || {}) }
@@ -479,7 +481,7 @@ let exam = {
   confirmExit: false, confirmSubmit: false, reportOpen: false, reportReason: 'wrong-key',
   reportView: 'analytics', practiceQuestions: null, wrongPractice: false, studyMode: false,
   showInstructions: false, showQuestionPaper: false, activeModal: '', selectedPlan: 'PRO',
-  processingPayment: false, authMode: 'login', profileOpen: false, notificationsOpen: false, examSwitchOpen: false, workspaceFilter: 'all'
+  processingPayment: false, authMode: 'login', profileOpen: false, notificationsOpen: false, examSwitchOpen: false, mobileMoreOpen: false, workspaceFilter: 'all'
 };
 let timerHandle = null;
 let toastHandle = null;
@@ -592,7 +594,7 @@ function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       user: state.user, activeTab: state.activeTab, selectedExamId: state.selectedExamId,
-      lang: state.lang, accentTheme: state.accentTheme, themeMode: state.themeMode, bookmarkedIds: state.bookmarkedIds,
+      lang: state.lang, accentTheme: state.accentTheme, themeMode: state.themeMode, themePreferenceSet: state.themePreferenceSet, bookmarkedIds: state.bookmarkedIds,
       customNotes: state.customNotes, userState: state.userState, studyModeActive: state.studyModeActive,
       showHintsMap: state.showHintsMap, billingCycle: state.billingCycle,
       mocksView: state.mocksView, sectionalSubject: state.sectionalSubject,
@@ -853,6 +855,9 @@ function renderHeader() {
   return `<header class="topbar">
     <div class="top-left">
       <button class="hamburger" data-action="toggle-drawer" aria-label="Open navigation menu" title="Open menu">${iconSvg('menu', 18)}</button>
+      <button class="mobile-brand" data-action="nav" data-tab="dashboard" aria-label="SSC Flix home">
+        <span class="mobile-brand-mark">SF</span><span>SSC Flix</span>
+      </button>
       <button class="exam-pill${exam.examSwitchOpen ? ' open' : ''}" data-action="exam-switch" title="Switch target exam">
         <span class="exam-pill-icon">${examIconSvg(examItem.id, 17)}</span>
         <span class="exam-pill-text"><strong>${esc(examItem.code)}</strong><small>${esc(examItem.name)}</small></span>
@@ -861,11 +866,11 @@ function renderHeader() {
       </button>
     </div>
     <div class="top-actions">
-      <div class="search-wrap"><span class="search-icon">${iconSvg('search', 15)}</span><input id="globalSearch" class="search-input" type="search" placeholder="Search mocks, PYQs, reasoning..." value="${esc(state.globalSearch)}"></div>
-      <button class="lang-btn" data-action="toggle-language">${iconSvg('globe', 14)} <span>${isHindi() ? 'HI' : 'EN'}</span></button>
+      <div class="search-wrap"><span class="search-icon">${iconSvg('search', 15)}</span><input id="globalSearch" class="search-input" type="search" placeholder="Search mocks, PYQs, reasoning..." value="${esc(state.globalSearch)}" aria-label="Search study content"></div>
+      <button class="lang-btn" data-action="toggle-language" title="Switch language">${iconSvg('globe', 14)} <span>${isHindi() ? 'HI' : 'EN'}</span></button>
       <button class="icon-btn" data-action="toggle-mode" title="${state.themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}">${iconSvg(state.themeMode === 'light' ? 'moon' : 'sun', 16)}</button>
-      <button class="icon-btn" data-action="notifications" aria-label="Notifications">${iconSvg('bell', 16)}<span class="dot"></span></button>
-      ${state.user.isLoggedIn ? `<button class="profile-btn" data-action="profile">${avatarHtml(28)}<span class="profile-name">${esc(state.user.name)}</span>${iconSvg('chevron-down', 13)}</button>` : `<button class="btn btn-primary" data-action="open-auth">Sign In</button>`}
+      <button class="icon-btn" data-action="notifications" aria-label="Notifications" title="Notifications">${iconSvg('bell', 16)}<span class="dot"></span></button>
+      ${state.user.isLoggedIn ? `<button class="profile-btn" data-action="profile" aria-label="Open profile">${avatarHtml(28)}<span class="profile-name">${esc(state.user.name)}</span>${iconSvg('chevron-down', 13)}</button>` : `<button class="btn btn-primary" data-action="open-auth">Sign In</button>`}
     </div>
     ${exam.profileOpen ? `<div class="profile-menu"><div class="menu-head">${avatarHtml(40)}<div class="menu-id"><strong>${esc(state.user.name)}</strong><small>${esc(state.user.email)}</small><div class="tag gold" style="margin-top:6px">${esc(state.user.plan)} PASS ACTIVE</div></div></div><button class="menu-item" data-action="open-subscription">${iconSvg('crown', 13)} Subscription Plan</button><button class="menu-item" data-action="nav" data-tab="settings">${iconSvg('settings', 13)} Preferences</button><button class="menu-item text-rose" data-action="logout">${iconSvg('log-out', 13)} Sign Out</button></div>` : ''}
     ${exam.notificationsOpen ? `<div class="notification-menu"><div class="row-between"><h4>Exam Notifications</h4><button class="btn btn-ghost" data-action="notifications">×</button></div><div class="notification-item">${iconSvg('bell', 13)} <strong>${esc(currentExam().code)} 2026:</strong> Official Tier-1 Mock Series #09 is now live!</div><div class="notification-item">${iconSvg('zap', 13)} <strong>Daily Challenge:</strong> Solve 15 Quant questions to maintain streak.</div></div>` : ''}
@@ -1016,78 +1021,40 @@ function renderWelcome() {
 function dashboardPage() {
   const examItem = currentExam();
   const metrics = [
-    { label: 'Mocks attempted', value: '24 tests', detail: '+3 this week', icon: 'file-text', color: 'indigo' },
-    { label: 'Average percentile', value: '96.4%', detail: 'Top 4% of aspirants', icon: 'trending-up', color: 'green' },
-    { label: 'Questions solved', value: '2,840', detail: '89.2% accuracy', icon: 'brain', color: 'amber' },
-    { label: 'Target cutoff', value: String(examItem.cutoff), detail: `${examItem.code} standard`, icon: 'target', color: 'accent' }
+    { label: 'Mocks attempted', value: '24', detail: 'tests completed', icon: 'file-text' },
+    { label: 'Questions solved', value: '2,840', detail: 'across all subjects', icon: 'brain' },
+    { label: 'Accuracy', value: '89.2%', detail: 'overall practice', icon: 'target' }
   ];
-
   const recommendations = [
-    { title: `${examItem.code} Official Full Mock #09`, q: 100, time: '60 min', marks: examItem.totalMarks, level: 'Full mock', icon: 'target', tone: 'rose', premium: false },
-    { title: `${examItem.code} Quantitative Speed Test`, q: 25, time: '20 min', marks: 50, level: 'Sectional', icon: 'zap', tone: 'amber', premium: false },
-    { title: `${examItem.code} PYQ Shift Simulation`, q: 100, time: '60 min', marks: examItem.totalMarks, level: 'Previous year', icon: 'history', tone: 'violet', premium: false },
-    { title: `${examItem.code} Pro Pass All-India Live Mock`, q: 100, time: '60 min', marks: examItem.totalMarks, level: 'Pro series', icon: 'crown', tone: 'gold', premium: true }
+    { title: examItem.code + ' Full Mock Test', description: 'A complete timed exam simulation', meta: '100 questions · 60 min', icon: 'monitor', tone: 'violet', action: 'Full mock', premium: false },
+    { title: 'Quantitative Aptitude', description: 'Build speed with focused practice', meta: '25 questions · 20 min', icon: 'zap', tone: 'amber', action: 'Sectional', premium: false },
+    { title: 'Previous Year Questions', description: 'Practice questions from past papers', meta: 'Shift-wise practice', icon: 'history', tone: 'green', action: 'PYQ set', premium: false }
   ];
-
-  return `<section class="page dashboard-page dashboard-page-v2">
-    <header class="dashboard-intro">
-      <div class="dashboard-intro-copy">
-        <span class="dashboard-eyebrow">${iconSvg('sparkles', 13)} YOUR PREPARATION SPACE</span>
-        <h2>Welcome back, ${esc(state.user.name)}<span>!</span></h2>
-        <p>Make today count. Continue your preparation with a mock test or a focused practice session.</p>
-        <div class="dashboard-intro-actions">
-          <button class="btn btn-primary" data-action="resume-mock">${iconSvg('play-circle', 15)} Resume Mock #08</button>
-          <button class="btn btn-secondary" data-action="nav" data-tab="mocks">Explore mock tests ${iconSvg('arrow-right', 14)}</button>
-        </div>
-      </div>
-      <aside class="dashboard-target">
-        <div class="dashboard-target-label">CURRENT TARGET</div>
-        <div class="dashboard-target-main">
-          <span class="dashboard-target-icon">${examIconSvg(examItem.id, 19)}</span>
-          <div><strong>${esc(examItem.code)}</strong><small>${esc(examItem.tier)}</small></div>
-        </div>
-        <div class="dashboard-target-footer">
-          <span>${iconSvg('clock', 12)} ${examItem.targetDays} days left</span>
-          <span>${esc(examItem.name)}</span>
-        </div>
-      </aside>
-    </header>
-
-    <section class="dashboard-section dashboard-overview">
-      <div class="dashboard-section-heading">
-        <div><h3>Preparation overview</h3><p>A quick look at your activity</p></div>
-      </div>
-      <div class="dashboard-metrics">
-        ${metrics.map(item => `<article class="dashboard-metric">
-          <div class="dashboard-metric-top">
-            <span>${item.label}</span>
-            <span class="dashboard-metric-icon ${item.color}">${iconSvg(item.icon, 16)}</span>
-          </div>
-          <strong>${item.value}</strong>
-          <small>${item.detail}</small>
-        </article>`).join('')}
-      </div>
-    </section>
-
-    <section class="dashboard-section dashboard-recommendations">
-      <div class="dashboard-section-heading dashboard-recommendation-heading">
-        <div><h3>Recommended practice</h3><p>Pick your next session and keep moving forward</p></div>
-        <button class="dashboard-view-all" data-action="nav" data-tab="mocks">View all mocks ${iconSvg('arrow-right', 14)}</button>
-      </div>
-      <div class="dashboard-recommendations-grid">
-        ${recommendations.map(item => `<article class="dashboard-recommend-card tone-${item.tone}${item.premium ? ' premium' : ''}">
-          <div class="dashboard-recommend-card-head">
-            <span class="dashboard-recommend-icon">${iconSvg(item.icon, 17)}</span>
-            <span class="dashboard-recommend-type">${item.level}</span>
-            <span class="dashboard-recommend-time">${iconSvg('clock', 12)} ${item.time}</span>
-          </div>
-          <h4>${esc(item.title)}</h4>
-          <div class="dashboard-recommend-meta"><span>${item.q} questions</span><span>${item.marks} marks</span></div>
-          <button class="btn ${item.premium && state.user.plan === 'FREE' ? 'btn-warning' : 'btn-primary'} btn-block" data-action="start-recommendation" data-title="${esc(item.title)}" data-premium="${item.premium}">${item.premium && state.user.plan === 'FREE' ? `${iconSvg('lock', 13)} Unlock Pro` : `${iconSvg('play', 12)} Start test`}</button>
-        </article>`).join('')}
-      </div>
-    </section>
-  </section>`;
+  const metricsMarkup = metrics.map(item =>
+    '<article class="dash-stat"><div class="dash-stat-top"><span>' + item.label + '</span><span class="dash-stat-icon">' + iconSvg(item.icon, 16) + '</span></div><strong>' + item.value + '</strong><small>' + item.detail + '</small></article>'
+  ).join('');
+  const recommendationsMarkup = recommendations.map(item =>
+    '<article class="dash-recommend-card tone-' + item.tone + '">' +
+      '<div class="dash-recommend-icon">' + iconSvg(item.icon, 18) + '</div>' +
+      '<div class="dash-recommend-copy"><span>' + item.action + '</span><h3>' + esc(item.title) + '</h3><p>' + item.description + '</p><small>' + item.meta + '</small></div>' +
+      '<button class="dash-recommend-action" data-action="start-recommendation" data-title="' + esc(item.title) + '" data-premium="false" aria-label="Start ' + esc(item.title) + '">' + iconSvg('arrow-up-right', 16) + '</button>' +
+    '</article>'
+  ).join('');
+  return '<section class="page dashboard-page-v3">' +
+    '<header class="dash-heading">' +
+      '<div class="dash-heading-copy"><span class="dash-eyebrow">YOUR STUDY SPACE</span><h1>Good to see you, ' + esc(state.user.name.split(' ')[0]) + '.</h1><p>Small, consistent sessions make a big difference. What would you like to work on today?</p></div>' +
+      '<button class="dash-target-pill" data-action="exam-switch" title="Switch target exam"><span class="dash-target-icon">' + examIconSvg(examItem.id, 18) + '</span><span><small>YOUR TARGET EXAM</small><strong>' + esc(examItem.code) + '</strong></span><span class="dash-target-days">' + examItem.targetDays + ' days left</span>' + iconSvg('chevron-down', 13) + '</button>' +
+    '</header>' +
+    '<section class="dash-focus-card">' +
+      '<div class="dash-focus-copy"><span class="dash-focus-kicker">' + iconSvg('sparkles', 13) + ' A GOOD PLACE TO START</span><h2>One focused session at a time.</h2><p>Build confidence with a timed mock, review your answers, and keep your preparation moving forward.</p>' +
+        '<div class="dash-focus-actions"><button class="btn btn-primary" data-action="resume-mock">' + iconSvg('play', 14) + ' Start a full mock</button><button class="btn btn-secondary" data-action="nav" data-tab="mocks">Browse all tests ' + iconSvg('arrow-right', 14) + '</button></div>' +
+      '</div>' +
+      '<aside class="dash-focus-aside"><span class="dash-aside-label">CURRENT PREPARATION TARGET</span><div class="dash-aside-exam">' + examIconSvg(examItem.id, 23) + '<strong>' + esc(examItem.code) + '</strong></div><div class="dash-aside-divider"></div><div class="dash-aside-bottom"><span><strong>' + examItem.targetDays + '</strong><small>days to target</small></span><span><strong>' + examItem.totalMocks + '</strong><small>mock tests listed</small></span></div></aside>' +
+    '</section>' +
+    '<section class="dash-stats-section"><div class="dash-section-heading"><div><h2>Your activity</h2><p>A quick snapshot of your preparation</p></div></div><div class="dash-stats-grid">' + metricsMarkup + '</div></section>' +
+    '<section class="dash-recommendations-section"><div class="dash-section-heading"><div><h2>Pick your next session</h2><p>Continue with a mock or focus on one subject</p></div><button class="dash-text-link" data-action="nav" data-tab="mocks">View test library ' + iconSvg('arrow-right', 14) + '</button></div><div class="dash-recommendations-grid">' + recommendationsMarkup + '</div></section>' +
+    '<section class="dash-shortcuts"><button class="dash-shortcut" data-action="nav" data-tab="pyq"><span>' + iconSvg('history', 17) + '</span><div><strong>Previous year papers</strong><small>Practice real exam questions</small></div>' + iconSvg('arrow-right', 14) + '</button><button class="dash-shortcut" data-action="nav" data-tab="practice"><span>' + iconSvg('book-open', 17) + '</span><div><strong>Chapter-wise practice</strong><small>Work on a specific topic</small></div>' + iconSvg('arrow-right', 14) + '</button></section>' +
+  '</section>';
 }
 function mocksPage() {
   const examItem = currentExam();
@@ -1206,8 +1173,33 @@ function renderCurrentPage() {
   }
 }
 
+function renderMobileNav() {
+  const primary = [
+    ['dashboard', 'Home', 'layout-dashboard'],
+    ['mocks', 'Tests', 'file-text'],
+    ['pyq', 'PYQs', 'history'],
+    ['practice', 'Practice', 'book-open']
+  ];
+  const secondary = NAV_ITEMS.filter(([id]) => !primary.some(([primaryId]) => primaryId === id));
+  const primaryMarkup = primary.map(([id, label, icon]) =>
+    '<button class="mobile-nav-item' + (state.activeTab === id ? ' active' : '') + '" data-action="nav" data-tab="' + id + '"' + (state.activeTab === id ? ' aria-current="page"' : '') + '>' +
+      '<span class="mobile-nav-icon">' + iconSvg(icon, 18) + '</span><span>' + label + '</span></button>'
+  ).join('');
+  const secondaryMarkup = secondary.map(([id, label, icon]) =>
+    '<button class="mobile-more-link' + (state.activeTab === id ? ' active' : '') + '" data-action="nav" data-tab="' + id + '">' +
+      '<span class="mobile-more-icon">' + iconSvg(icon, 17) + '</span><span>' + label + '</span>' +
+      (id === 'bookmarks' && state.bookmarkedIds.length ? '<span class="mobile-more-count">' + state.bookmarkedIds.length + '</span>' : '') +
+    '</button>'
+  ).join('');
+  return '<div class="mobile-nav-layer">' +
+    (exam.mobileMoreOpen ? '<button class="mobile-more-backdrop" data-action="close-mobile-more" aria-label="Close more menu"></button>' : '') +
+    (exam.mobileMoreOpen ? '<section class="mobile-more-sheet" aria-label="More navigation"><div class="mobile-more-head"><div><strong>More</strong><small>More of your workspace</small></div><button class="mobile-more-close" data-action="close-mobile-more" aria-label="Close menu">×</button></div><div class="mobile-more-grid">' + secondaryMarkup + '</div></section>' : '') +
+    '<nav class="mobile-bottom-nav" aria-label="Primary navigation">' + primaryMarkup +
+      '<button class="mobile-nav-item' + (exam.mobileMoreOpen ? ' active' : '') + '" data-action="mobile-more" aria-expanded="' + (exam.mobileMoreOpen ? 'true' : 'false') + '"><span class="mobile-nav-icon">' + iconSvg('menu', 18) + '</span><span>More</span></button>' +
+    '</nav></div>';
+}
 function renderApp() {
-  app.innerHTML = `<div class="app-shell">${renderSidebar()}<div class="workspace">${renderHeader()}<main class="main-content">${renderCurrentPage()}</main></div><div class="nav-scrim" data-action="close-drawer"></div></div>${renderModal()}`;
+  app.innerHTML = `<div class="app-shell">${renderSidebar()}<div class="workspace">${renderHeader()}<main class="main-content">${renderCurrentPage()}</main></div><div class="nav-scrim" data-action="close-drawer"></div>${renderMobileNav()}</div>${renderModal()}`;
 }
 function statusClass(status) {
   return ({ ANSWERED: 'answered', UNANSWERED: 'unanswered', MARKED: 'marked', ANSWERED_MARKED: 'answered-marked' })[status] || '';
@@ -1472,14 +1464,16 @@ app.addEventListener('click', event => {
   const action = button.dataset.action;
   const id = button.dataset.id;
   switch (action) {
-    case 'nav': state.activeTab = button.dataset.tab; exam.profileOpen = false; exam.notificationsOpen = false; exam.examSwitchOpen = false; render(); break;
+    case 'nav': state.activeTab = button.dataset.tab; exam.profileOpen = false; exam.notificationsOpen = false; exam.examSwitchOpen = false; exam.mobileMoreOpen = false; render(); break;
     case 'toggle-drawer': document.body.classList.toggle('nav-open'); break;
+    case 'mobile-more': exam.mobileMoreOpen = !exam.mobileMoreOpen; render(); break;
+    case 'close-mobile-more': exam.mobileMoreOpen = false; render(); break;
     case 'close-drawer': document.body.classList.remove('nav-open'); break;
     case 'choose-exam': setTargetExam(button.dataset.exam, true); break;
     case 'exam-switch': exam.examSwitchOpen = !exam.examSwitchOpen; exam.profileOpen = false; exam.notificationsOpen = false; render(); break;
     case 'exam-switch-select': setTargetExam(button.dataset.exam); break;
     case 'toggle-language': state.lang = isHindi() ? 'en' : 'hi'; render(); break;
-    case 'toggle-mode': state.themeMode = state.themeMode === 'light' ? 'dark' : 'light'; applyTheme(); persist(); render(); showToast(state.themeMode === 'light' ? 'Light mode on' : 'Dark mode on', iconSvg(state.themeMode === 'light' ? 'sun' : 'moon', 14)); break;
+    case 'toggle-mode': state.themePreferenceSet = true; state.themeMode = state.themeMode === 'light' ? 'dark' : 'light'; applyTheme(); persist(); render(); showToast(state.themeMode === 'light' ? 'Light mode on' : 'Dark mode on', iconSvg(state.themeMode === 'light' ? 'sun' : 'moon', 14)); break;
     case 'notifications': exam.notificationsOpen = !exam.notificationsOpen; exam.profileOpen = false; exam.examSwitchOpen = false; render(); break;
     case 'profile': exam.profileOpen = !exam.profileOpen; exam.notificationsOpen = false; exam.examSwitchOpen = false; render(); break;
     case 'open-subscription': exam.activeModal = 'subscription'; render(); break;
