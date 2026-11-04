@@ -1456,122 +1456,210 @@ function renderExamOverlays() {
 function renderResultsModal() {
   const score = getScore();
   const view = exam.reportView || 'analytics';
-  const wrongCount = allQuestions().filter(question => {
-    const selected = state.userState[question.id]?.selectedOption;
-    return selected !== null && selected !== undefined && selected !== question.correct;
-  }).length;
-  const marks = score.totalScore;
-  // section-wise performance rows
-  const sectionRows = [...new Set(allQuestions().map(question => question.sectionId))].map(sectionId => {
-    const item = SECTIONS.find(section => section.id === sectionId);
-    const questions = allQuestions().filter(question => question.sectionId === sectionId);
-    let correct = 0, incorrect = 0;
-    questions.forEach(question => {
+  const questions = allQuestions();
+  const total = questions.length;
+  const attempted = score.correct + score.incorrect;
+  const skipped = Math.max(0, total - attempted);
+  const maxMarks = total * 2;
+  const earnedMarks = score.correct * 2;
+  const negativeMarks = score.incorrect * 0.5;
+  const timeUsed = Math.max(0, 3600 - exam.timeLeft);
+  const percentage = maxMarks ? Math.max(0, Math.min(100, Math.round(score.totalScore / maxMarks * 100))) : 0;
+  const wrongCount = score.incorrect;
+  const benchmark = currentExam().cutoff;
+  const benchmarkDelta = score.totalScore - benchmark;
+
+  const sectionRows = [...new Set(questions.map(question => question.sectionId))].map(sectionId => {
+    const section = SECTIONS.find(item => item.id === sectionId);
+    const sectionQuestions = questions.filter(question => question.sectionId === sectionId);
+    let correct = 0;
+    let incorrect = 0;
+    sectionQuestions.forEach(question => {
       const selected = state.userState[question.id]?.selectedOption;
       if (selected === null || selected === undefined) return;
-      if (selected === question.correct) correct++; else incorrect++;
+      if (selected === question.correct) correct++;
+      else incorrect++;
     });
+    const unanswered = Math.max(0, sectionQuestions.length - correct - incorrect);
     return {
-      label: esc(isHindi() ? item.nameHi : item.name),
-      total: questions.length,
+      id: sectionId,
+      label: esc(section ? (isHindi() ? section.nameHi : section.name) : sectionId),
+      total: sectionQuestions.length,
       correct,
       incorrect,
-      unatt: Math.max(0, questions.length - correct - incorrect),
-      acc: Math.round(correct / questions.length * 100)
+      unanswered,
+      accuracy: correct + incorrect ? Math.round(correct / (correct + incorrect) * 100) : 0
     };
   });
-  // deterministic peer board for this paper (official +2.0 / −0.5 marking scheme)
-  const seed = (function (str) { let h = 0; for (const ch of str) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h); })(exam.title.split(' · ')[0]);
-  const pool = [
-    ['Ananya Roy', 'West Bengal'], ['Vikram Singh', 'Rajasthan'], ['Priya Sharma', 'Uttar Pradesh'],
-    ['Amit Verma', 'Madhya Pradesh'], ['Sneha Kulkarni', 'Karnataka'], ['Arjun Banerjee', 'Bihar'],
-    ['Kavya Nair', 'Kerala'], ['Rohit Deshmukh', 'Maharashtra'], ['Meera Iyer', 'Tamil Nadu'], ['Harsh Vardhan', 'Delhi NCR']
-  ];
-  const maxMarks = allQuestions().length * 2;
-  const deltas = [9, 4, -3, 12, -7, 6, -1, 15, 2, 18].map((delta, i) => delta * 2 + (seed % 7) * 0.5);
-  const board = pool.map((entry, i) => ({ name: entry[0], state: entry[1], tests: 4 + (seed + i) % 10, mk: Math.min(maxMarks, Math.max(-maxMarks * 0.25, Math.round((marks + deltas[i]) * 2) / 2)), you: false }))
-    .concat([{ name: `${state.user.name} (You)`, state: '—', tests: 1, mk: marks, you: true }])
-    .sort((a, b) => b.mk - a.mk);
-  const bestSection = sectionRows.slice().sort((a, b) => b.correct - a.correct || b.acc - a.acc)[0];
-  const weakestSection = sectionRows.slice().sort((a, b) => a.acc - b.acc)[0];
-  const analyticsHtml = `
-        <div class="sec-analytics">
-          <div class="row-between" style="margin-bottom:11px">
-            <h4 style="margin:0">Section-wise Performance</h4>
-            <span class="tag accent">Test leaderboard marks: <b style="margin-left:4px">${marks >= 0 ? '+' : ''}${marks.toFixed(1)}</b></span>
-          </div>
-          ${sectionRows.map(row => {
-            const wC = row.correct / row.total * 100, wX = row.incorrect / row.total * 100, wU = row.unatt / row.total * 100;
-            return `<div class="sec-a-row"><span class="sec-name">${row.label}</span><div class="sec-bar"><span class="b-green" style="width:${wC}%"></span><span class="b-rose" style="width:${wX}%"></span><span class="b-gray" style="width:${wU}%"></span></div><small class="mono">${row.correct}/${row.total}</small><small class="mono text-accent">${row.acc}%</small></div>`;
-          }).join('')}
-          <div class="confirm-note risk" style="margin-top:12px">${iconSvg('sparkles', 13)} Strongest: <strong>${bestSection.label}</strong> (${bestSection.acc}% accuracy) · Weakest: <strong>${weakestSection.label}</strong> (${weakestSection.acc}%) — attempt ${weakestSection.correct + weakestSection.unatt > 0 ? 'its unattempted ' + weakestSection.unatt + ' questions' : 'that section'} in the next mock for faster gains.</div>
-        </div>`;
-  const boardHtml = `
-        <div class="test-board">
-          <div class="row-between" style="margin-bottom:12px">
-            <h4 style="margin:0">${iconSvg('trophy', 15)} Leaderboard — ${esc(exam.title.split(' · ')[0])}</h4>
-            <span class="tag accent">This paper only · +2.0 correct / −0.5 wrong</span>
-          </div>
-          <div class="tboard-head mono"><span>RANK</span><span>CANDIDATE</span><span class="hide-mobile">STATE</span><span>TESTS</span><span>MARKS</span></div>
-          ${board.map((row, i) => `<div class="tboard-row ${row.you ? 'is-user' : ''}"><span class="mono">#${i + 1}</span><span>${esc(row.name)}</span><span class="hide-mobile">${esc(row.state)}</span><span class="mono">${row.tests}</span><span class="mono ${row.you ? 'text-accent' : ''}"><strong>${row.mk >= 0 ? '+' : ''}${row.mk.toFixed(1)}</strong></span></div>`).join('')}
-          <p class="test-board-note">Marks follow the official scheme of this paper: <strong>+2.0 per correct, −0.5 per wrong</strong>. Your row uses this attempt's live marks.</p>
-        </div>`;
-  const solutions = allQuestions().filter(question => {
+
+  const bestSection = sectionRows.slice().sort((a, b) => b.accuracy - a.accuracy || b.correct - a.correct)[0];
+  const weakestSection = sectionRows.slice().sort((a, b) => a.accuracy - b.accuracy || a.correct - b.correct)[0];
+
+  const sectionAnalytics = `
+    <section class="result-section-card">
+      <div class="result-section-head">
+        <div><span class="result-eyebrow">SUBJECT BREAKDOWN</span><h3>Section-wise performance</h3></div>
+        <span class="result-muted-count">${sectionRows.length} sections</span>
+      </div>
+      <div class="result-section-list">
+        ${sectionRows.map(row => {
+          const correctWidth = row.total ? row.correct / row.total * 100 : 0;
+          const wrongWidth = row.total ? row.incorrect / row.total * 100 : 0;
+          const skippedWidth = row.total ? row.unanswered / row.total * 100 : 0;
+          return `<article class="result-section-row">
+            <div class="result-section-title">
+              <strong>${row.label}</strong>
+              <span>${row.correct}/${row.total} correct · ${row.accuracy}% accuracy</span>
+            </div>
+            <div class="result-section-bar" role="img" aria-label="${row.correct} correct, ${row.incorrect} incorrect, ${row.unanswered} unanswered">
+              <span class="correct-part" style="width:${correctWidth}%"></span>
+              <span class="wrong-part" style="width:${wrongWidth}%"></span>
+              <span class="skipped-part" style="width:${skippedWidth}%"></span>
+            </div>
+            <div class="result-section-counts">
+              <span><i class="correct-dot"></i>${row.correct} correct</span>
+              <span><i class="wrong-dot"></i>${row.incorrect} wrong</span>
+              <span><i class="skipped-dot"></i>${row.unanswered} skipped</span>
+            </div>
+          </article>`;
+        }).join('')}
+      </div>
+      ${bestSection && weakestSection ? `<div class="result-insight-grid">
+        <div class="result-insight best"><span>${iconSvg('trending-up', 15)} STRONGEST SECTION</span><strong>${bestSection.label}</strong><small>${bestSection.accuracy}% accuracy · ${bestSection.correct} correct</small></div>
+        <div class="result-insight improve"><span>${iconSvg('target', 15)} NEEDS MORE PRACTICE</span><strong>${weakestSection.label}</strong><small>${weakestSection.accuracy}% accuracy · ${weakestSection.incorrect} wrong</small></div>
+      </div>` : ''}
+    </section>`;
+
+  const leaderboardRows = (() => {
+    const seed = (function (str) { let h = 0; for (const ch of str) h = (h * 31 + ch.charCodeAt(0)) | 0; return Math.abs(h); })(exam.title.split(' · ')[0]);
+    const pool = [
+      ['Ananya Roy', 'West Bengal'], ['Vikram Singh', 'Rajasthan'], ['Priya Sharma', 'Uttar Pradesh'],
+      ['Amit Verma', 'Madhya Pradesh'], ['Sneha Kulkarni', 'Karnataka'], ['Arjun Banerjee', 'Bihar'],
+      ['Kavya Nair', 'Kerala'], ['Rohit Deshmukh', 'Maharashtra'], ['Meera Iyer', 'Tamil Nadu'], ['Harsh Vardhan', 'Delhi NCR']
+    ];
+    const deltas = [9, 4, -3, 12, -7, 6, -1, 15, 2, 18].map((delta, i) => delta * 2 + (seed % 7) * 0.5);
+    return pool.map((entry, index) => ({
+      name: entry[0],
+      state: entry[1],
+      tests: 4 + (seed + index) % 10,
+      marks: Math.min(maxMarks, Math.max(-maxMarks * 0.25, Math.round((score.totalScore + deltas[index]) * 2) / 2)),
+      you: false
+    })).concat([{ name: `${state.user.name} (You)`, state: '—', tests: 1, marks: score.totalScore, you: true }]).sort((a, b) => b.marks - a.marks);
+  })();
+
+  const leaderboardHtml = `
+    <section class="result-section-card result-leaderboard-card">
+      <div class="result-section-head">
+        <div><span class="result-eyebrow">PAPER COMPARISON</span><h3>Leaderboard preview</h3></div>
+        <span class="result-demo-tag">SAMPLE DATA</span>
+      </div>
+      <div class="result-sample-note">${iconSvg('info', 15)} This is illustrative demo data, not a live All-India ranking or official percentile.</div>
+      <div class="result-leaderboard-list">
+        ${leaderboardRows.map((row, index) => `<div class="result-leaderboard-row ${row.you ? 'is-you' : ''}">
+          <span class="result-rank">#${index + 1}</span>
+          <span class="result-candidate"><strong>${esc(row.name)}</strong><small>${esc(row.state)}</small></span>
+          <span class="result-candidate-tests">${row.tests} tests</span>
+          <strong class="result-candidate-score">${row.marks >= 0 ? '+' : ''}${row.marks.toFixed(1)}</strong>
+        </div>`).join('')}
+      </div>
+      <p class="result-footnote">The comparison is generated locally for demonstration only.</p>
+    </section>`;
+
+  const filteredSolutions = questions.filter(question => {
     const selected = state.userState[question.id]?.selectedOption;
-    const isCorrect = selected === question.correct;
+    const isAttempted = selected !== null && selected !== undefined;
+    const isCorrect = isAttempted && selected === question.correct;
     if (exam.solutionFilter === 'CORRECT') return isCorrect;
-    if (exam.solutionFilter === 'INCORRECT') return selected !== null && selected !== undefined && !isCorrect;
+    if (exam.solutionFilter === 'INCORRECT') return isAttempted && !isCorrect;
     if (exam.solutionFilter === 'BOOKMARKED') return state.bookmarkedIds.includes(question.id);
     return true;
   });
 
-  return `<div class="modal-backdrop">
-    <div class="modal result-modal">
-      <div class="results-header">
-        <div class="row">
-          <span class="result-badge">${iconSvg('award', 22)}</span>
-          <div><h3>${exam.studyMode ? 'Study Session Summary' : 'Score Report'}</h3><p class="modal-sub">${esc(exam.title)} · ${esc(state.user.name)} · Roll ${esc(state.user.rollNo)}${exam.studyMode ? ' · study session (answers practised live)' : ` · Time used: ${formatTime(3600 - exam.timeLeft)}`}</p></div>
-        </div>
-        <div class="heading-actions">${view === 'analytics' ? `${exam.studyMode ? '' : `<button class="btn btn-ghost" data-action="report-view" data-view="leaderboard">${iconSvg('trophy', 14)} This Test's Leaderboard</button>`}<button class="btn btn-warning" data-action="reattempt-wrong" ${wrongCount ? '' : 'disabled'}>↻ Reattempt Wrong (${wrongCount})</button><button class="btn btn-primary" data-action="report-view" data-view="solutions">Solution Review</button><button class="btn btn-secondary" data-action="exit-to-mytests">Go to My Tests</button>` : `<button class="btn btn-secondary" data-action="report-view" data-view="analytics">← Back to Report</button>`}</div>
+  const actions = view === 'analytics'
+    ? `<button class="btn btn-secondary" data-action="report-view" data-view="leaderboard">${iconSvg('trophy', 14)} Leaderboard preview</button>
+       <button class="btn btn-warning" data-action="reattempt-wrong" ${wrongCount ? '' : 'disabled'}>${iconSvg('refresh-cw', 14)} Reattempt wrong (${wrongCount})</button>
+       <button class="btn btn-primary" data-action="report-view" data-view="solutions">${iconSvg('book-open', 14)} Review solutions</button>
+       <button class="btn btn-ghost" data-action="exit-to-mytests">Go to My Tests ${iconSvg('arrow-right', 14)}</button>`
+    : `<button class="btn btn-secondary" data-action="report-view" data-view="analytics">${iconSvg('arrow-left', 14)} Back to report</button>`;
+
+  const solutionsHtml = `
+    <section class="result-section-card result-solutions">
+      <div class="result-section-head">
+        <div><span class="result-eyebrow">LEARN FROM THIS ATTEMPT</span><h3>Solutions review</h3></div>
+        <span class="result-muted-count">${filteredSolutions.length} questions</span>
       </div>
-      <div class="result-hero">
-        <div class="result-ring" style="--pct:${score.totalScore ? Math.round(score.totalScore / (allQuestions().length * 2) * 100) : 0}"><b>${score.totalScore.toFixed(1)}</b><small>of ${(allQuestions().length * 2).toFixed(1)} marks</small></div>
-        <div class="result-herostats">
-          <div class="hero-verdict ${score.totalScore >= currentExam().cutoff ? 'good' : 'risk'}">✓ ${score.totalScore >= currentExam().cutoff ? `Cutoff cleared · +${(score.totalScore - currentExam().cutoff).toFixed(1)} over cutoff` : `Below cutoff · ${Math.abs(score.totalScore - currentExam().cutoff).toFixed(1)} short of target`}</div>
-          <div class="hero-chiprow">
-            <div class="hero-chip"><small>Accuracy</small><strong class="text-accent">${score.accuracy}%</strong></div>
-            <div class="hero-chip"><small>Correct</small><strong class="text-green">${score.correct}</strong></div>
-            <div class="hero-chip"><small>Wrong</small><strong class="text-rose">${score.incorrect}</strong></div>
-            <div class="hero-chip"><small>Unattempted</small><strong>${allQuestions().length - score.correct - score.incorrect}</strong></div>
-          </div>
-          <p class="hero-note">Estimated All-India Rank <strong class="text-accent">#${Math.max(1, Math.round(5000 - (score.totalScore ? Math.round(score.totalScore / (allQuestions().length * 2) * 100) : 0) * 48)).toLocaleString()}</strong> · Verdict: <strong>${score.accuracy >= 75 ? 'Excellent' : score.accuracy >= 50 ? 'Strong attempt' : score.accuracy >= 25 ? 'Needs consistency' : 'Rework fundamentals'}</strong>${score.incorrect > 0 ? ' · Tame negative marking to gain ' + (score.incorrect * 0.5).toFixed(1) + ' marks' : ''}</p>
-        </div>
+      <div class="result-solution-filters">
+        ${[['ALL','All'],['CORRECT','Correct'],['INCORRECT','Incorrect'],['BOOKMARKED','Bookmarked']].map(([filter, label]) =>
+          `<button class="result-filter ${exam.solutionFilter === filter ? 'active' : ''}" data-action="solution-filter" data-filter="${filter}">${label}</button>`
+        ).join('')}
       </div>
-      ${view === 'analytics' ? analyticsHtml : ''}
-      ${view === 'leaderboard' ? boardHtml : ''}
-      ${view === 'solutions' ? `<div class="results-section-heading">
-        <h4>Solutions Review</h4>
-        <div class="toggle-group">
-          ${['ALL','CORRECT','INCORRECT','BOOKMARKED'].map(filter => `<button class="btn ${exam.solutionFilter === filter ? 'active' : 'btn-ghost'}" data-action="solution-filter" data-filter="${filter}">${filter}</button>`).join('')}
-        </div>
+      <div class="result-solution-list">
+        ${filteredSolutions.map(question => {
+          const selected = state.userState[question.id]?.selectedOption;
+          const attemptedQuestion = selected !== null && selected !== undefined;
+          const correct = attemptedQuestion && selected === question.correct;
+          const status = correct ? '+2.0 · Correct' : attemptedQuestion ? '−0.5 · Incorrect' : 'Not attempted';
+          const statusClass = correct ? 'correct' : attemptedQuestion ? 'wrong' : 'skipped';
+          return `<article class="result-solution-item">
+            <div class="result-solution-head"><strong>Q.${question.num} · ${(question.sectionId || '').toUpperCase()}</strong><span class="result-solution-status ${statusClass}">${status}</span></div>
+            <p class="result-solution-question">${esc(questionText(question))}</p>
+            <div class="result-solution-answer"><strong>Correct answer: ${String.fromCharCode(65 + question.correct)} · ${esc(questionOptions(question)[question.correct])}</strong>
+              ${attemptedQuestion ? `<small>Your answer: ${String.fromCharCode(65 + selected)} · ${esc(questionOptions(question)[selected])}</small>` : ''}
+              <p>${esc(question.explanation || 'No explanation provided.')}</p>
+            </div>
+          </article>`;
+        }).join('') || `<div class="result-empty">No questions match this filter.</div>`}
       </div>
-      ${solutions.map(question => {
-        const selected = state.userState[question.id]?.selectedOption;
-        const isCorrect = selected === question.correct;
-        const attempted = selected !== null && selected !== undefined;
-        const resultLabel = isCorrect ? '+2.0 Correct' : attempted ? '−0.5 Wrong' : 'Unattempted';
-        const resultClass = isCorrect ? 'green' : attempted ? 'red' : '';
-        return `<article class="solution-card">
-          <div class="row-between"><strong class="mono solution-question-label">Q.${question.num} (${question.sectionId.toUpperCase()})</strong><span class="tag ${resultClass}">${resultLabel}</span></div>
-          <p>${esc(questionText(question))}</p>
-          <div class="solution-info">
-            <strong class="text-green">Correct Option: ${String.fromCharCode(65 + question.correct)} — ${esc(questionOptions(question)[question.correct])}</strong>
-            <p>Explanation: <span class="text-gold">${esc(question.explanation)}</span></p>
-            ${attempted ? `<p>Your answer: ${String.fromCharCode(65 + selected)} — ${esc(questionOptions(question)[selected])}</p>` : ''}
-          </div>
-        </article>`;
-      }).join('') || '<div class="empty-state">No solutions match this filter.</div>'}` : ''}
-    </div>
+    </section>`;
+
+  return `<div class="result-backdrop">
+    <main class="result-page">
+      <header class="result-page-header">
+        <div class="result-page-title">
+          <span class="result-page-badge">${iconSvg('award', 19)}</span>
+          <div><span class="result-eyebrow">ATTEMPT COMPLETE</span><h1>${exam.studyMode ? 'Study session summary' : 'Your score report'}</h1><p>${esc(exam.title)} · ${esc(state.user.name)}${exam.studyMode ? ' · Study mode' : ` · Time used ${formatTime(timeUsed)}`}</p></div>
+        </div>
+        <div class="result-page-actions">${actions}</div>
+      </header>
+
+      ${view === 'analytics' ? `<section class="result-overview-card">
+        <div class="result-overview-main">
+          <div class="result-overview-score"><span class="result-eyebrow">YOUR FINAL SCORE</span><strong>${score.totalScore.toFixed(1)}<small> / ${maxMarks.toFixed(1)}</small></strong><span class="result-score-caption">${percentage}% of maximum marks</span></div>
+          <div class="result-overview-ring" style="--result-pct:${percentage}"><div><strong>${score.accuracy}%</strong><small>Accuracy</small></div></div>
+        </div>
+        <div class="result-overview-verdict ${benchmarkDelta >= 0 ? 'positive' : 'neutral'}">
+          <span>${iconSvg(benchmarkDelta >= 0 ? 'check-circle' : 'target', 16)}</span>
+          <div><strong>${benchmarkDelta >= 0 ? 'Above practice benchmark' : 'Below practice benchmark'}</strong><small>${benchmarkDelta >= 0 ? `${benchmarkDelta.toFixed(1)} marks above` : `${Math.abs(benchmarkDelta).toFixed(1)} marks below`} the configured target · not an official SSC cutoff</small></div>
+        </div>
+      </section>
+
+      <section class="result-metric-grid">
+        <article class="result-metric correct"><span>${iconSvg('check-circle', 16)} CORRECT</span><strong>${score.correct}</strong><small>+${earnedMarks.toFixed(1)} marks earned</small></article>
+        <article class="result-metric wrong"><span>${iconSvg('x-circle', 16)} INCORRECT</span><strong>${score.incorrect}</strong><small>−${negativeMarks.toFixed(1)} marks deducted</small></article>
+        <article class="result-metric skipped"><span>${iconSvg('minus-circle', 16)} UNANSWERED</span><strong>${skipped}</strong><small>0 marks</small></article>
+        <article class="result-metric accuracy"><span>${iconSvg('target', 16)} ACCURACY</span><strong>${score.accuracy}%</strong><small>${attempted} attempted of ${total}</small></article>
+      </section>
+
+      <section class="result-section-card result-marks-breakdown">
+        <div class="result-section-head"><div><span class="result-eyebrow">HOW YOUR SCORE WAS CALCULATED</span><h3>Marks breakdown</h3></div><strong class="result-net-score">${score.totalScore.toFixed(1)} marks</strong></div>
+        <div class="result-marks-equation">
+          <div><span>Correct answers</span><strong>${score.correct} × 2</strong><b class="positive-text">+${earnedMarks.toFixed(1)}</b></div>
+          <span class="result-equation-sign">−</span>
+          <div><span>Incorrect answers</span><strong>${score.incorrect} × 0.5</strong><b class="negative-text">${negativeMarks.toFixed(1)}</b></div>
+          <span class="result-equation-sign">=</span>
+          <div class="result-net-block"><span>Final score</span><strong>${score.totalScore.toFixed(1)}</strong></div>
+        </div>
+      </section>
+
+      ${sectionAnalytics}
+      <section class="result-next-steps">
+        <div><span class="result-eyebrow">YOUR NEXT STEP</span><h3>${weakestSection ? `Spend your next practice session on ${weakestSection.label}` : 'Keep building consistency'}</h3><p>${weakestSection ? `${weakestSection.accuracy}% accuracy in this section. Review the incorrect answers and revisit the concepts you found difficult.` : 'Review your answers and continue practising regularly.'}</p></div>
+        <button class="btn btn-primary" data-action="report-view" data-view="solutions">${iconSvg('book-open', 14)} Review answers</button>
+      </section>` : ''}
+      ${view === 'leaderboard' ? leaderboardHtml : ''}
+      ${view === 'solutions' ? solutionsHtml : ''}
+      <footer class="result-page-footer"><span>Score is calculated using this paper's configured marking scheme: +2 for correct and −0.5 for incorrect.</span><button class="btn btn-secondary" data-action="exit-to-mytests">Finish and go to My Tests ${iconSvg('arrow-right', 14)}</button></footer>
+    </main>
   </div>`;
 }
 function renderModal() {
