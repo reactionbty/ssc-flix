@@ -1059,21 +1059,32 @@ function pyqPage() {
   const rows = full
     ? PYQ_LIST.filter(item => year === 'all' || item.year.startsWith(year)).map(item => ({ title: `${examItem.code} PYQ Paper: ${item.shift}`, action: 'start-pyq', shiftKey: item.shift, yearTag: item.year, coverage: item.subject, q: item.q, marks: examItem.totalMarks, mins: item.q > 100 ? 120 : 60, attempted: lastScores[item.year] !== undefined, score: lastScores[item.year] || '' })).filter(row => searchMatch(row.title) || searchMatch(row.yearTag) || searchMatch(row.coverage) || searchMatch(examItem.code))
     : SECTIONS.filter(section => subject === 'all' || section.id === subject).map(section => ({ title: `${examItem.code} PYQ Sectional${year !== 'all' ? ` ${year}` : ''}: ${section.name}`, action: 'start-mock', shiftKey: '', coverage: 'Exam Standard', q: 25, marks: 50, mins: 20, attempted: false, score: '' })).filter(row => searchMatch(row.title) || searchMatch(examItem.code));
-  const rowHtml = row => `<article class="library-test-card">
+  const rowHtml = row => `<article class="library-test-card pyq-library-card ${row.attempted ? 'is-attempted' : 'is-new'}">
     <div class="library-test-main">
       <span class="library-test-icon pyq">${iconSvg('history', 19)}</span>
       <div class="library-test-copy">
-        <div class="library-test-title-row"><h3>${esc(row.title)}</h3>${row.yearTag ? `<span class="library-tag year">${esc(row.yearTag)}</span>` : ''}</div>
-        <div class="library-test-meta"><span>${iconSvg('file-text', 12)} ${row.q} questions</span><span>${iconSvg('award', 12)} ${row.marks} marks</span><span>${iconSvg('clock', 12)} ${row.mins} min</span><span>${esc(row.coverage)}</span></div>
+        <div class="pyq-card-heading">
+          <h3>${esc(row.title)}</h3>
+          ${row.yearTag ? `<span class="library-tag year">${esc(row.yearTag)}</span>` : ''}
+        </div>
+        <div class="library-test-meta">
+          <span>${iconSvg('file-text', 12)} ${row.q} questions</span>
+          <span>${iconSvg('award', 12)} ${row.marks} marks</span>
+          <span>${iconSvg('clock', 12)} ${row.mins} min</span>
+          <span class="pyq-coverage">${esc(row.coverage)}</span>
+        </div>
       </div>
     </div>
-    <div class="library-test-side">${row.attempted ? '<div class="library-last-score"><small>LAST SCORE</small><strong>' + esc(row.score) + '</strong></div>' : ''}
+    <div class="library-test-side">
+      ${row.attempted
+        ? '<div class="library-last-score"><small>LAST SCORE</small><strong>' + esc(row.score) + '</strong></div>'
+        : '<div class="library-last-score pyq-not-attempted"><small>STATUS</small><strong>Not attempted</strong></div>'}
       <button class="btn btn-primary" data-action="${row.action}" ${row.action === 'start-pyq' ? `data-shift="${esc(row.shiftKey)}"` : ''} data-title="${esc(row.title)}">${row.attempted ? 'Re-attempt' : state.studyModeActive ? 'Open Study' : 'Attempt paper'}</button>
     </div>
   </article>`;
   return `<section class="page library-page-v3">
     <header class="library-page-intro"><div><span class="library-page-kicker">PREVIOUS YEAR QUESTIONS</span><h1>PYQ papers</h1><p>Work through available shift papers and subject-wise PYQ practice for ${esc(examItem.code)}.</p></div><div class="library-page-context"><span>PAPER ARCHIVE</span><strong>2024–2025</strong><small>Shift-wise practice</small></div></header>
-    <div class="library-toolbar"><div class="library-toolbar-main"><div class="library-tabs"><button class="library-tab ${full ? 'active' : ''}" data-action="pyq-view" data-view="full">Full papers</button><button class="library-tab ${!full ? 'active' : ''}" data-action="pyq-view" data-view="sectional">Sectional</button></div><select class="field library-filter" data-change="pyq-year" aria-label="Choose PYQ year"><option value="all" ${year === 'all' ? 'selected' : ''}>All years</option>${years.map(y => `<option value="${y}" ${year === y ? 'selected' : ''}>${y}</option>`).join('')}</select>${!full ? `<select class="field library-filter" data-change="pyq-subject" aria-label="Choose sectional subject"><option value="all" ${subject === 'all' ? 'selected' : ''}>All subjects</option>${SECTIONS.map(s => `<option value="${s.id}" ${subject === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>` : ''}</div><div class="library-mode-switch"><button class="${!state.studyModeActive ? 'active' : ''}" data-action="study-mode" data-value="false">Test mode</button><button class="${state.studyModeActive ? 'active' : ''}" data-action="study-mode" data-value="true">Study mode</button></div></div>
+    <div class="library-toolbar"><div class="library-toolbar-main"><div class="library-tabs"><button class="library-tab ${full ? 'active' : ''}" data-action="pyq-view" data-view="full">Full papers</button><button class="library-tab ${!full ? 'active' : ''}" data-action="pyq-view" data-view="sectional">Sectional</button></div><select class="field library-filter" data-change="pyq-year" aria-label="Choose PYQ year"><option value="all" ${year === 'all' ? 'selected' : ''}>All years</option>${years.map(y => `<option value="${y}" ${year === y ? 'selected' : ''}>${y}</option>`).join('')}${!full ? `<select class="field library-filter" data-change="pyq-subject" aria-label="Choose sectional subject"><option value="all" ${subject === 'all' ? 'selected' : ''}>All subjects</option>${SECTIONS.map(s => `<option value="${s.id}" ${subject === s.id ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select>` : ''}</div><div class="library-mode-switch"><button class="${!state.studyModeActive ? 'active' : ''}" data-action="study-mode" data-value="false">Test mode</button><button class="${state.studyModeActive ? 'active' : ''}" data-action="study-mode" data-value="true">Study mode</button></div></div>
     <div class="library-results-heading"><strong>${full ? 'Available papers' : 'Section-wise PYQs'}</strong><span>${rows.length} available</span></div>
     <div class="library-test-list">${rows.length ? rows.map(rowHtml).join('') : `<div class="empty-state">No ${full ? 'PYQ paper' : 'sectional paper'} matches your filters. Try another combination or switch exam.</div>`}</div>
   </section>`;
@@ -1085,10 +1096,14 @@ function practicePage() {
   const rows = (CHAPTER_PAPERS[activeSubject.id] || []).map(chapter => ({ id: activeSubject.id, title: `${examItem.code} Chapter Test: ${chapter}`, chapter, chapterTag: shortName[activeSubject.id], q: 10, marks: 20, mins: 12 }))
     .filter(row => searchMatch(row.title) || searchMatch(row.chapterTag) || searchMatch(examItem.code));
   const progress = Math.round(activeSubject.solved / Math.max(1, activeSubject.totalQ) * 100);
-  const rowHtml = (row, index) => `<article class="chapter-test-card">
-    <div class="chapter-index">${String(index + 1).padStart(2, '0')}</div>
-    <div class="chapter-copy"><span>${esc(row.chapterTag)} · CHAPTER ${index + 1}</span><h3>${esc(row.chapter)}</h3><small>${row.q} questions · ${row.marks} marks · ${row.mins} min</small></div>
-    <button class="btn btn-primary" data-action="start-practice" data-subject="${esc(row.id)}" data-title="${esc(row.title)}">${state.studyModeActive ? 'Open study' : 'Start test'} ${iconSvg('arrow-right', 13)}</button>
+  const rowHtml = (row, index) => `<article class="chapter-test-card chapter-test-card-v2">
+    <span class="chapter-index">${String(index + 1).padStart(2, '0')}</span>
+    <div class="chapter-copy">
+      <span>${esc(row.chapterTag)} · CHAPTER ${index + 1}</span>
+      <h3>${esc(row.chapter)}</h3>
+      <small><span>${iconSvg('file-text', 11)} ${row.q} questions</span><span>${iconSvg('award', 11)} ${row.marks} marks</span><span>${iconSvg('clock', 11)} ${row.mins} min</span></small>
+    </div>
+    <button class="btn btn-primary chapter-start-button" data-action="start-practice" data-subject="${esc(row.id)}" data-title="${esc(row.title)}">${state.studyModeActive ? 'Open study' : 'Start test'} ${iconSvg('arrow-right', 13)}</button>
   </article>`;
   return `<section class="page library-page-v3 practice-page-v3">
     <header class="library-page-intro"><div><span class="library-page-kicker">SUBJECT-WISE PREPARATION</span><h1>Chapter practice</h1><p>Choose one subject and work through its key chapters at your own pace.</p></div><div class="library-page-context"><span>ACTIVE SUBJECT</span><strong>${shortName[activeSubject.id]}</strong><small>${activeSubject.chapters} chapters listed</small></div></header>
