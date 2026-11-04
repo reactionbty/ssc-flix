@@ -1370,8 +1370,85 @@ function renderExamOverlays() {
   let html = '';
   if (exam.showInstructions) html += `<div class="modal-backdrop"><div class="modal medium"><button class="modal-close" data-action="instructions">×</button><h3>SSC CBT Exam Pattern Instructions</h3><p class="modal-sub">Please read the test guidelines before proceeding.</p><div class="solution-info">• Total Duration: <strong>60 Minutes</strong> for Tier 1 Paper.<br><br>• Marking Scheme: <strong>+2.0 Marks</strong> for correct answer | <strong>−0.5 Negative Marks</strong> for wrong attempt.<br><br>• Question Status Colors: Green = Answered, Red = Not Answered, Purple = Marked for Review.<br><br>• Switch between English & Hindi anytime using the top header language toggle.</div><div class="modal-actions"><button class="btn btn-primary" data-action="instructions">Return to Exam</button></div></div></div>`;
   if (exam.paused) html += `<div class="modal-backdrop"><div class="modal narrow war-modal"><div class="confirm-head"><span class="confirm-ic warn">${iconSvg('pause', 18)}</span><div><h3>Test Paused</h3><p class="modal-sub">The countdown is on hold. Your answers are saved locally.</p></div></div><div class="confirm-strip"><div><small>Time Remaining</small><strong>${formatTime(exam.timeLeft)}</strong></div><div><small>Status</small><strong>On Hold</strong></div></div><div class="confirm-actions"><button class="btn btn-secondary" data-action="exit-exam">Exit &amp; Save Pending</button><button class="btn btn-primary" data-action="resume-test">${iconSvg('play-circle', 15)} Resume Test</button></div></div></div>`;
-  if (exam.confirmExit) html += (() => { const s = getStats(); const tot = allQuestions().length; const pct = tot ? Math.round(s.answered / tot * 100) : 0; return `<div class="modal-backdrop"><div class="modal narrow war-modal"><button class="modal-close" data-action="cancel-confirm">×</button><div class="confirm-head"><span class="confirm-ic danger">${iconSvg('log-out', 17)}</span><div><h3>Exit this test?</h3><p class="modal-sub">Leaving now saves a pending snapshot you can resume later from My Tests.</p></div></div><div class="confirm-body"><div class="donut" style="--pct:${pct}"><b>${pct}%</b><small>Answered</small></div><div class="confirm-grid"><div class="mini-stat"><small>Answered</small><strong>${s.answered}</strong></div><div class="mini-stat"><small>Not Answered</small><strong>${s.unanswered}</strong></div><div class="mini-stat"><small>Marked</small><strong>${s.marked}</strong></div><div class="mini-stat"><small>Time Left</small><strong>${formatTime(exam.timeLeft)}</strong></div></div></div><div class="confirm-note safe">${iconSvg('bookmark', 13)} You can resume this attempt later from <strong>My Tests</strong> without losing answers.</div><div class="confirm-actions"><button class="btn btn-primary" data-action="cancel-confirm">Keep Attempting</button><button class="btn btn-solid-danger" data-action="exit-final">Exit Test</button></div></div></div>`; })();
-  if (exam.confirmSubmit) html += (() => { const s = getStats(); const tot = allQuestions().length; const pct = tot ? Math.round(s.answered / tot * 100) : 0; return `<div class="modal-backdrop"><div class="modal narrow war-modal"><button class="modal-close" data-action="cancel-confirm">×</button><div class="confirm-head"><span class="confirm-ic good">${iconSvg('check-circle', 17)}</span><div><h3>Submit final paper?</h3><p class="modal-sub">You cannot return after submitting — your score report generates immediately.</p></div></div><div class="confirm-body"><div class="donut" style="--pct:${pct}"><b>${pct}%</b><small>Answered</small></div><div class="confirm-grid"><div class="mini-stat"><small>Answered</small><strong>${s.answered}</strong></div><div class="mini-stat"><small>Not Answered</small><strong>${s.unanswered}</strong></div><div class="mini-stat"><small>Marked</small><strong>${s.marked}</strong></div><div class="mini-stat"><small>Time Left</small><strong>${formatTime(exam.timeLeft)}</strong></div></div></div><div class="confirm-note risk">${iconSvg('clock', 13)} Un-answered questions carry <strong>−0.5 negative marks</strong> only if attempted wrong — blanks score zero. Auto-submit runs when the timer hits zero.</div><div class="confirm-actions"><button class="btn btn-secondary" data-action="cancel-confirm">Review Again</button><button class="btn btn-success" data-action="submit-final">✓ Submit Final</button></div></div></div>`; })();
+
+  if (exam.confirmExit) html += (() => {
+    const stats = getStats();
+    const total = allQuestions().length;
+    const pct = total ? Math.round(stats.answered / total * 100) : 0;
+    return `<div class="modal-backdrop exam-confirm-backdrop">
+      <section class="modal narrow war-modal exam-confirm-modal exit-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle">
+        <button class="modal-close exam-confirm-close" data-action="cancel-confirm" aria-label="Close confirmation">×</button>
+        <div class="exam-confirm-eyebrow"><span class="exam-confirm-dot exit-dot"></span> EXIT CONFIRMATION</div>
+        <div class="exam-confirm-heading">
+          <span class="exam-confirm-icon exit-icon">${iconSvg('log-out', 21)}</span>
+          <div>
+            <h3 id="exitConfirmTitle">Leave this test?</h3>
+            <p>You can save your progress as a pending attempt and continue later from My Tests.</p>
+          </div>
+        </div>
+        <div class="exam-confirm-progress">
+          <div class="donut" style="--pct:${pct}"><b>${pct}%</b><small>done</small></div>
+          <div class="exam-confirm-progress-copy">
+            <strong>${stats.answered} of ${total} answered</strong>
+            <span>Your attempt progress</span>
+            <div class="exam-confirm-progress-track"><span style="width:${pct}%"></span></div>
+            <small>${stats.unanswered} questions still unanswered</small>
+          </div>
+        </div>
+        <div class="exam-confirm-stats">
+          <div class="exam-confirm-stat"><span>Answered</span><strong>${stats.answered}</strong></div>
+          <div class="exam-confirm-stat"><span>Not answered</span><strong>${stats.unanswered}</strong></div>
+          <div class="exam-confirm-stat"><span>Marked for review</span><strong>${stats.marked}</strong></div>
+          <div class="exam-confirm-stat"><span>Time remaining</span><strong>${formatTime(exam.timeLeft)}</strong></div>
+        </div>
+        <div class="exam-confirm-note exit-note">${iconSvg('bookmark-check', 16)}<span><strong>Your answers will be saved.</strong> This test will appear as Pending in My Tests, where you can resume it.</span></div>
+        <div class="confirm-actions exam-confirm-actions">
+          <button class="btn btn-secondary" data-action="cancel-confirm">Keep attempting</button>
+          <button class="btn btn-solid-danger" data-action="exit-final">Exit &amp; save</button>
+        </div>
+      </section>
+    </div>`;
+  })();
+  if (exam.confirmSubmit) html += (() => {
+    const stats = getStats();
+    const total = allQuestions().length;
+    const pct = total ? Math.round(stats.answered / total * 100) : 0;
+    return `<div class="modal-backdrop exam-confirm-backdrop">
+      <section class="modal narrow war-modal exam-confirm-modal submit-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="submitConfirmTitle">
+        <button class="modal-close exam-confirm-close" data-action="cancel-confirm" aria-label="Close confirmation">×</button>
+        <div class="exam-confirm-eyebrow"><span class="exam-confirm-dot submit-dot"></span> FINAL SUBMISSION</div>
+        <div class="exam-confirm-heading">
+          <span class="exam-confirm-icon submit-icon">${iconSvg('clipboard-check', 21)}</span>
+          <div>
+            <h3 id="submitConfirmTitle">Ready to submit?</h3>
+            <p>Review your attempt summary. Once submitted, you cannot change your answers.</p>
+          </div>
+        </div>
+        <div class="exam-confirm-progress">
+          <div class="donut" style="--pct:${pct}"><b>${pct}%</b><small>done</small></div>
+          <div class="exam-confirm-progress-copy">
+            <strong>${stats.answered} of ${total} answered</strong>
+            <span>Paper completion</span>
+            <div class="exam-confirm-progress-track"><span style="width:${pct}%"></span></div>
+            <small>${stats.unanswered} questions left blank</small>
+          </div>
+        </div>
+        <div class="exam-confirm-stats">
+          <div class="exam-confirm-stat"><span>Answered</span><strong>${stats.answered}</strong></div>
+          <div class="exam-confirm-stat"><span>Not answered</span><strong>${stats.unanswered}</strong></div>
+          <div class="exam-confirm-stat"><span>Marked for review</span><strong>${stats.marked}</strong></div>
+          <div class="exam-confirm-stat"><span>Time remaining</span><strong>${formatTime(exam.timeLeft)}</strong></div>
+        </div>
+        ${stats.unanswered > 0
+          ? `<div class="exam-confirm-note submit-warning">${iconSvg('alert-triangle', 16)}<span><strong>${stats.unanswered} unanswered questions.</strong> Blank answers score zero. Incorrect attempted answers carry −0.5 marks.</span></div>`
+          : `<div class="exam-confirm-note submit-ready">${iconSvg('check-circle', 16)}<span><strong>All questions have responses.</strong> You can still review marked questions before final submission.</span></div>`}
+        <div class="confirm-actions exam-confirm-actions">
+          <button class="btn btn-secondary" data-action="cancel-confirm">Review answers</button>
+          <button class="btn btn-success" data-action="submit-final">${iconSvg('check', 15)} Submit test</button>
+        </div>
+      </section>
+    </div>`;
+  })();
   if (exam.reportOpen) html += `<div class="modal-backdrop"><div class="modal narrow"><button class="modal-close" data-action="cancel-report">×</button><h3>Report this question</h3><p class="modal-sub">Tell us what looks wrong with Question No. ${currentQuestion().num}. Our review team checks every report.</p><div class="report-list">${[['wrong-key', 'Wrong answer key or solution'], ['unclear', 'Question text is unclear or ambiguous'], ['typo', 'Spelling / language error'], ['options', 'Missing or duplicate options'], ['media', 'Image, figure or table not loading']].map(([id,label]) => `<label class="report-item"><input type="radio" name="reportReason" value="${id}" data-change="report-reason" ${exam.reportReason === id ? 'checked' : ''}><span>${label}</span></label>`).join('')}</div><label class="label" for="reportNote">ADD A NOTE (OPTIONAL)</label><textarea id="reportNote" class="field report-note" rows="2" placeholder="Describe the issue briefly…"></textarea><div class="modal-actions"><button class="btn btn-secondary" data-action="cancel-report">Cancel</button><button class="btn btn-danger" data-action="report-submit">${iconSvg('flag', 14)} Submit Report</button></div></div></div>`;
   if (exam.submitted) html += exam.wrongPractice ? (() => { const s = getScore(); const total = allQuestions().length; const pct = total ? Math.round(s.correct / total * 100) : 0; return `<div class="modal-backdrop"><div class="modal narrow war-modal"><button class="modal-close" data-action="exit-practice">×</button><div class="confirm-head"><span class="confirm-ic good">${iconSvg('check-circle', 17)}</span><div><h3>Wrong-Answers Practice Complete</h3><p class="modal-sub">You reworked ${total} previously wrong question${total > 1 ? 's' : ''} from ${esc(exam.title.split(' · ')[0])}.</p></div></div><div class="confirm-body"><div class="donut" style="--pct:${pct}"><b>${pct}%</b><small>Now Correct</small></div><div class="confirm-grid"><div class="mini-stat"><small>Now Correct</small><strong>${s.correct}/${total}</strong></div><div class="mini-stat"><small>Still Wrong</small><strong>${s.incorrect}</strong></div><div class="mini-stat"><small>Attempted</small><strong>${s.correct + s.incorrect}</strong></div><div class="mini-stat"><small>Time Used</small><strong>${formatTime(allQuestions().length * 90 - exam.timeLeft)}</strong></div></div></div><div class="confirm-note safe">${iconSvg('bookmark', 13)} No changes were made to your original attempt record or My Tests.</div><div class="confirm-actions"><button class="btn btn-primary" data-action="exit-practice">Back to Dashboard</button></div></div></div>`; })() : renderResultsModal();
   return html;
