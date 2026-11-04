@@ -4080,3 +4080,171 @@ body.light .exam-v4 .palette-footer, body.light .exam-v4 .palette-head { backgro
     min-width: 112px;
   }
 }
+
+
+
+/* PYQ paper cards — align with compact mock-test card design */
+.pyq-library-card {
+  align-items: stretch;
+  gap: 13px;
+}
+.pyq-library-card .library-test-main { align-items: flex-start; gap: 11px; }
+.pyq-library-card .library-test-copy { display: grid; gap: 8px; }
+.pyq-card-heading { display: grid; gap: 5px; min-width: 0; }
+.pyq-card-heading h3 { margin: 0; color: var(--text); font-size: 12px; line-height: 1.4; letter-spacing: -.015em; }
+.pyq-card-heading .library-tag { justify-self: start; }
+.pyq-library-card .library-test-meta { display: flex; flex-wrap: wrap; gap: 8px 13px; margin-top: 0; line-height: 1.35; }
+.pyq-library-card .library-test-meta span { white-space: nowrap; }
+.pyq-coverage { color: var(--muted); }
+.pyq-library-card .library-test-side {
+  align-items: center;
+  justify-content: space-between;
+  min-width: 0;
+  gap: 12px;
+}
+.pyq-library-card .library-test-side .btn {
+  min-height: 40px;
+  padding: 10px 15px;
+  border-radius: 10px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.pyq-library-card .library-last-score { text-align: left; gap: 3px; }
+.pyq-not-attempted strong { color: var(--muted); font: 650 9px var(--sans); }
+
+/* Chapter cards — compact single-row cards with clear action placement */
+.chapter-test-card-v2 {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--panel);
+  box-shadow: 0 2px 8px rgba(26, 35, 55, .025);
+}
+.chapter-test-card-v2 .chapter-index {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 10px;
+}
+.chapter-test-card-v2 .chapter-copy { min-width: 0; }
+.chapter-test-card-v2 .chapter-copy > span {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .07em;
+}
+.chapter-test-card-v2 .chapter-copy h3 {
+  margin: 0;
+  color: var(--text);
+  font-size: 11px;
+  line-height: 1.4;
+}
+.chapter-test-card-v2 .chapter-copy > small {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 11px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 8px;
+}
+.chapter-test-card-v2 .chapter-copy > small span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.chapter-test-card-v2 .chapter-copy > small svg { opacity: .8; }
+.chapter-test-card-v2 .chapter-start-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 108px;
+  min-height: 37px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .pyq-library-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+    border-radius: 13px;
+  }
+  .pyq-library-card .library-test-main { gap: 9px; }
+  .pyq-library-card .library-test-icon {
+    width: 36px; height: 36px; flex: 0 0 36px; border-radius: 10px;
+  }
+  .pyq-library-card .library-test-copy { gap: 7px; }
+  .pyq-card-heading { gap: 4px; }
+  .pyq-card-heading h3 { font-size: 11px; line-height: 1.35; }
+  .pyq-card-heading .library-tag { min-height: 17px; padding: 3px 6px; font-size: 7px; }
+  .pyq-library-card .library-test-meta { gap: 6px 10px; font-size: 8px; }
+  .pyq-library-card .library-test-meta svg { width: 11px; height: 11px; }
+  .pyq-library-card .library-test-side {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .pyq-library-card .library-test-side .btn {
+    width: auto;
+    min-width: 122px;
+    min-height: 38px;
+    padding: 8px 12px;
+    font-size: 9px;
+  }
+  .pyq-library-card .library-last-score small { font-size: 7px; }
+  .pyq-library-card .library-last-score strong { font-size: 10px; }
+
+  .chapter-test-card-v2 {
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    gap: 9px;
+    padding: 11px;
+    border-radius: 12px;
+  }
+  .chapter-test-card-v2 .chapter-index { width: 32px; height: 32px; }
+  .chapter-test-card-v2 .chapter-copy h3 { font-size: 10px; }
+  .chapter-test-card-v2 .chapter-copy > small { gap: 5px 8px; font-size: 7px; }
+  .chapter-test-card-v2 .chapter-start-button {
+    grid-column: auto;
+    justify-self: end;
+    min-width: 94px;
+    min-height: 35px;
+    padding: 7px 8px;
+    font-size: 8px;
+  }
+}
+@media (max-width: 390px) {
+  .chapter-test-card-v2 {
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 8px;
+  }
+  .chapter-test-card-v2 .chapter-index { width: 29px; height: 29px; }
+  .chapter-test-card-v2 .chapter-start-button {
+    grid-column: 2;
+    justify-self: start;
+    min-width: 108px;
+  }
+}
+@media (max-width: 360px) {
+  .pyq-library-card { padding: 10px; }
+  .pyq-card-heading h3 { font-size: 10px; }
+  .pyq-library-card .library-test-meta { gap: 6px 8px; font-size: 7px; }
+  .pyq-library-card .library-test-side .btn { min-width: 112px; }
+}
