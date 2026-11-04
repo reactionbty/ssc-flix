@@ -971,7 +971,7 @@ function dashboardPage() {
     '<article class="dash-recommend-card tone-' + item.tone + '">' +
       '<div class="dash-recommend-icon">' + iconSvg(item.icon, 18) + '</div>' +
       '<div class="dash-recommend-copy"><span>' + item.action + '</span><h3>' + esc(item.title) + '</h3><p>' + item.description + '</p><small>' + item.meta + '</small></div>' +
-      '<button class="dash-recommend-action" data-action="start-recommendation" data-title="' + esc(item.title) + '" data-premium="false" aria-label="Start ' + esc(item.title) + '">' + iconSvg('arrow-up-right', 16) + '</button>' +
+      '<button class="dash-recommend-action" data-action="start-recommendation" data-title="' + esc(item.title) + '" data-premium="false" aria-label="Start ' + esc(item.title) + '">' + iconSvg('play-circle', 16) + '</button>' +
     '</article>'
   ).join('');
   return '<section class="page dashboard-page-v3">' +
