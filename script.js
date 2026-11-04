@@ -1017,15 +1017,28 @@ function mocksPage() {
         const lastScores = { reasoning: '42.5 / 50', quant: '40.0 / 50' };
         return { title: `${examItem.code} Sectional: ${section.name}`, q: 25, marks: 50, mins: 20, diff: 'Exam Standard', attempted: lastScores[section.id] !== undefined, score: lastScores[section.id] || '', premium: false };
       }).filter(mock => searchMatch(mock.title) || searchMatch(mock.diff) || searchMatch(examItem.code));
-  const rowHtml = mock => `<article class="library-test-card">
+  const rowHtml = mock => `<article class="library-test-card mock-library-card ${mock.attempted ? 'is-attempted' : 'is-new'}">
     <div class="library-test-main">
       <span class="library-test-icon">${iconSvg(full ? 'monitor' : 'layers', 19)}</span>
       <div class="library-test-copy">
-        <div class="library-test-title-row"><h3>${esc(mock.title)}</h3>${mock.premium ? '<span class="library-tag pro">PRO</span>' : ''}<span class="library-tag">${esc(mock.diff)}</span></div>
-        <div class="library-test-meta"><span>${iconSvg('file-text', 12)} ${mock.q} questions</span><span>${iconSvg('award', 12)} ${mock.marks} marks</span><span>${iconSvg('clock', 12)} ${mock.mins} min</span></div>
+        <div class="mock-card-heading">
+          <h3>${esc(mock.title)}</h3>
+          <div class="mock-card-badges">
+            ${mock.premium ? '<span class="library-tag pro">PRO</span>' : ''}
+            <span class="library-tag">${esc(mock.diff)}</span>
+          </div>
+        </div>
+        <div class="library-test-meta">
+          <span>${iconSvg('file-text', 12)} ${mock.q} questions</span>
+          <span>${iconSvg('award', 12)} ${mock.marks} marks</span>
+          <span>${iconSvg('clock', 12)} ${mock.mins} min</span>
+        </div>
       </div>
     </div>
-    <div class="library-test-side">${mock.attempted ? '<div class="library-last-score"><small>LAST SCORE</small><strong>' + esc(mock.score) + '</strong></div>' : ''}
+    <div class="library-test-side">
+      ${mock.attempted
+        ? '<div class="library-last-score"><small>LAST SCORE</small><strong>' + esc(mock.score) + '</strong></div>'
+        : '<div class="library-last-score mock-not-attempted"><small>STATUS</small><strong>Not attempted</strong></div>'}
       <button class="btn ${mock.premium && state.user.plan === 'FREE' ? 'btn-warning' : 'btn-primary'}" data-action="start-mock" data-title="${esc(mock.title)}" data-premium="${mock.premium}">${mock.premium && state.user.plan === 'FREE' ? 'Unlock Pro' : mock.attempted ? 'Re-attempt' : state.studyModeActive ? 'Open Study' : 'Attempt test'}</button>
     </div>
   </article>`;
