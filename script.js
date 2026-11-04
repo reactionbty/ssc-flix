@@ -545,6 +545,10 @@ const ICON_PATHS = {
   'user-plus': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/>',
   play: '<path d="m7.5 4.2 11.4 7.8L7.5 19.8Z" fill="currentColor" stroke="none"/>',
   users: '<path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M21 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+  calculator: '<rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 19h.01M12 19h.01M16 19h.01"/>',
+  landmark: '<path d="M3 21h18M5 21V9m4 12V9m6 12V9m4 12V9M2 9h20L12 3 2 9Z"/>',
+  circle: '<circle cx="12" cy="12" r="9"/>',
+  'arrow-up-right': '<path d="M7 17 17 7M7 7h10v10"/>',
   monitor: '<rect x="2" y="4" width="20" height="14" rx="2"/><path d="M8 21h8M12 18v3"/>',
   menu: '<path d="M4 6h16M4 12h16M4 18h16"/>'
 };
@@ -1535,6 +1539,7 @@ app.addEventListener('click', event => {
     case 'scroll-welcome': $('.landing-features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); break;
     case 'continue-learning': {
       const destination = ['mocks', 'pyq', 'practice'].includes(state.lastStudyTab) ? state.lastStudyTab : 'practice';
+      state.lastStudyTab = destination;
       state.activeTab = destination;
       if (destination === 'practice') state.practiceSubject = state.practiceSubject || 'quant';
       render();
