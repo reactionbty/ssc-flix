@@ -896,127 +896,61 @@ function renderExamSwitcher() {
   </div>`;
 }
 function renderWelcome() {
-  const examNow = currentExam();
-  const wlPatterns = { cgl: '60 Min · 100 Qs', chsl: '60 Min · 100 Qs', cpo: '120 Min · 200 Qs', mts: '90 Min · 90 Qs', steno: '120 Min · 200 Qs', gd: '60 Min · 80 Qs' };
-  const wlCats = { cgl: 'graduate', chsl: 'secondary', cpo: 'police', mts: 'secondary', steno: 'secondary', gd: 'police' };
-  const wlFilters = [['all', 'All Exams'], ['graduate', 'Graduate Level'], ['secondary', '10+2 Secondary'], ['police', 'Defense & Police']];
-  const wlFeatures = [
-    { icon: 'monitor', tint: 'violet', title: 'Exact TCS iON Screen Replica', text: 'Includes identical question palettes, section switching controls, mark-for-review tags, and countdown timer logic.' },
-    { icon: 'book-open', tint: 'purple', title: 'Bilingual Solutions', text: 'Detailed step-by-step solutions for Quantitative, Reasoning, English, and General Awareness in both English and Hindi.' },
-    { icon: 'chart', tint: 'green', title: 'Cutoff & Speed Analytics', text: 'Tracks time spent per question, accuracy ratios, and measures performance against official cutoffs.' },
-    { icon: 'zap', tint: 'amber', title: 'No-Friction Instant Attempt', text: 'Jump straight into free diagnostic test papers without cumbersome sign-up barriers or payment steps.' }
+  const examCategories = { cgl: 'graduate', chsl: 'secondary', cpo: 'police', mts: 'secondary', steno: 'secondary', gd: 'police' };
+  const filters = [['all', 'All exams'], ['graduate', 'Graduate level'], ['secondary', '10+2 level'], ['police', 'Defence & police']];
+  const visibleExams = EXAM_CATEGORIES.filter(item => exam.workspaceFilter === 'all' || examCategories[item.id] === exam.workspaceFilter);
+  const examCards = visibleExams.map(item => `<article class="welcome-exam-card ${item.id === state.selectedExamId ? 'selected' : ''}" data-exam-card="${item.id}">
+    <div class="welcome-exam-top"><span class="welcome-exam-icon">${examIconSvg(item.id, 21)}</span>${item.id === state.selectedExamId ? '<span class="welcome-selected">YOUR TARGET</span>' : '<span class="welcome-exam-days">' + item.targetDays + ' days</span>'}</div>
+    <h3>${esc(item.code)}</h3><p>${esc(item.name)}</p>
+    <div class="welcome-exam-meta"><span>${item.tier}</span><span>${item.totalMocks} mock tests</span></div>
+    <button class="welcome-exam-action" data-action="choose-exam" data-exam="${item.id}">Open workspace ${iconSvg('arrow-right', 14)}</button>
+  </article>`).join('');
+  const features = [
+    ['monitor', 'Realistic CBT practice', 'Timed tests with section switching, question palettes, and review controls.'],
+    ['book-open', 'Learn while you practise', 'Study mode reveals hints and explanations as you work through questions.'],
+    ['chart', 'Review your performance', 'Use your test history and score summaries to spot topics that need attention.'],
+    ['zap', 'Focused chapter sessions', 'Move from full mocks to short, subject-wise practice whenever you need.']
   ];
-  const rankSuffix = ['Tier-I Mock 03', 'Full Mock 01', 'Paper-I Mock'];
-  const rankAcc = ['98.4% Acc.', '95.1% Acc.', '93.8% Acc.'];
-  const rankOf = (row, i) => {
-    const exam = EXAM_CATEGORIES.find(item => item.id === row.exam) || EXAM_CATEGORIES[0];
-    return `<div class="wl-rank-row${i === 0 ? ' top' : ''}">
-      <div class="wl-rank-id wl-rank-${i + 1}"><b>${i + 1}</b></div>
-      <div class="wl-rank-who"><p>${esc(row.name)}</p><small>${esc(exam.code)} ${esc(rankSuffix[i])}</small></div>
-      <div class="wl-rank-score"><b>${row.weekly} pts</b><small>${esc(rankAcc[i])}</small></div>
-    </div>`;
-  };
-  app.innerHTML = `<div class="wl-shell">
-    <div class="wl-announce"><span class="wl-announce-tag">NEW</span><span>2026 Updated TCS iON Pattern Mocks &amp; AIR Analytics are live for CGL &amp; CHSL papers.</span></div>
-    <nav class="wl-nav">
-      <div class="wl-brand"><span class="wl-brand-mark">${iconSvg('play', 15)}</span><span class="wl-brand-name">SSC <b>Flix</b></span><span class="wl-brand-pro">PRO</span></div>
-      <div class="wl-nav-right">
-        <button class="wl-nav-ghost icon" data-action="toggle-mode" title="${state.themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}">${iconSvg(state.themeMode === 'light' ? 'sun' : 'moon', 14)}</button>
-        <button class="wl-nav-ghost" data-action="toggle-language">${iconSvg('globe', 14)} EN / HI</button>
-        <button class="wl-nav-sign" data-action="open-auth" data-mode="login">Sign in</button>
+  return `<div class="welcome-v4">
+    <div class="welcome-announcement"><span>SSC FLIX</span><p>A focused workspace for your SSC preparation</p><span class="welcome-announcement-note">DEMO PORTAL</span></div>
+    <header class="welcome-nav">
+      <button class="welcome-brand" data-action="wl-goto" data-target="welcome-top"><span class="welcome-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
+      <div class="welcome-nav-actions">
+        <button class="welcome-nav-control" data-action="toggle-language" title="Switch language">${iconSvg('globe', 15)} <span>${isHindi() ? 'HI' : 'EN'}</span></button>
+        <button class="welcome-nav-control" data-action="toggle-mode" title="${state.themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}">${iconSvg(state.themeMode === 'light' ? 'moon' : 'sun', 15)}</button>
+        <button class="welcome-sign-in" data-action="open-auth" data-mode="login">Sign in</button>
       </div>
-    </nav>
-    <main>
-      <section class="wl-hero">
-        <div class="wl-hero-left">
-          <span class="wl-kicker"><i class="wl-dot"></i>Official TCS iON Exam Interface Simulator</span>
-          <h1 class="wl-h1">Master the Exam, <br><b>Before the Exam Day.</b></h1>
-          <p class="wl-hero-copy">Targeted SSC test workspaces pairing realistic timed CBT papers with bilingual instant explanations, subject-wise cutoff breakdowns, and updated All-India rankings.</p>
-          <div class="wl-hero-ctas">
-            <button class="wl-cta" data-action="start-free">${iconSvg('play-circle', 16)}Attempt a free mock</button>
-            <button class="wl-cta ghost" data-action="wl-goto" data-target="wl-exams">${iconSvg('chevron-down', 16)}Explore SSC Exams</button>
-          </div>
-          <div class="wl-hero-notes">
-            <span>${iconSvg('check-circle', 15)}Instant Results &amp; Rank</span>
-            <span>${iconSvg('check-circle', 15)}Bilingual (English / Hindi)</span>
-            <span>${iconSvg('check-circle', 15)}No Credit Card Required</span>
-          </div>
+    </header>
+    <main class="welcome-main" id="welcome-top">
+      <section class="welcome-hero-v4">
+        <div class="welcome-hero-copy">
+          <span class="welcome-kicker"><span></span> PREPARE WITH A CLEAR PLAN</span>
+          <h1>Make every practice session <em>count.</em></h1>
+          <p>A clean, focused SSC preparation portal for mock tests, previous-year questions, and chapter-wise practice — all in one place.</p>
+          <div class="welcome-hero-actions"><button class="btn btn-primary" data-action="start-free">${iconSvg('play-circle', 16)} Try a free mock</button><button class="btn btn-secondary" data-action="wl-goto" data-target="wl-exams">Explore exams ${iconSvg('arrow-down', 14)}</button></div>
+          <div class="welcome-trust-row"><span>${iconSvg('check-circle', 14)} CBT-style practice</span><span>${iconSvg('check-circle', 14)} English & Hindi</span><span>${iconSvg('check-circle', 14)} Study mode</span></div>
         </div>
-        <aside class="wl-status">
-          <div class="wl-status-head">
-            <span class="wl-status-live"><i class="wl-dot ping"></i>LIVE WORKSPACE STATUS</span>
-            <span class="wl-status-tag">Active Session</span>
-          </div>
-          <div class="wl-status-grid">
-            <div class="wl-stat-card"><small>Recommended Paper</small><strong>${esc(examNow.code)} Tier-I Mock 04</strong><span class="wl-stat-meta">${iconSvg('clock', 12)}${esc(wlPatterns[examNow.id])}</span></div>
-            <div class="wl-stat-card"><small>Target Cutoff</small><strong class="num">${examNow.cutoff} / ${examNow.totalMarks}</strong><span class="wl-stat-meta plain">Based on Tier-I 2025</span></div>
-          </div>
-          <div class="wl-ticker">
-            <span class="wl-ticker-icon">${iconSvg('users', 16)}</span>
-            <div class="wl-ticker-copy"><p>1,482 Aspirants Attempting</p><small>Live across all 6 exam workspaces</small></div>
-            <button class="wl-ticker-join" data-action="wl-goto" data-target="wl-exams">Join ${iconSvg('arrow-right', 13)}</button>
-          </div>
+        <aside class="welcome-preview-card">
+          <div class="welcome-preview-head"><div><span>YOUR STUDY SPACE</span><strong>One workspace. Multiple exams.</strong></div><span class="welcome-live-dot">●</span></div>
+          <div class="welcome-preview-exam"><span>${examIconSvg(currentExam().id, 23)}</span><div><small>CURRENT TARGET</small><strong>${esc(currentExam().code)}</strong></div><button data-action="wl-goto" data-target="wl-exams" aria-label="Choose exam">${iconSvg('chevron-down', 15)}</button></div>
+          <div class="welcome-preview-divider"></div>
+          <div class="welcome-preview-stats"><div><strong>01</strong><small>Pick a paper</small></div><div><strong>02</strong><small>Attempt questions</small></div><div><strong>03</strong><small>Review answers</small></div></div>
+          <p class="welcome-preview-note">A demonstration workspace — sample scores and test data are illustrative.</p>
         </aside>
       </section>
-
-      <section class="wl-hub" id="wl-exams">
-        <div class="wl-hub-head">
-          <div><span class="wl-kicker-sm">Interactive Hub</span><h2>Select SSC Exam Workspace</h2></div>
-          <div class="wl-filters">
-            ${wlFilters.map(([cat, label]) => `<button class="wl-filter${exam.workspaceFilter === cat ? ' active' : ''}" data-action="wl-filter" data-cat="${cat}">${esc(label)}</button>`).join('')}
-          </div>
-        </div>
-        <div class="wl-cards">
-          ${EXAM_CATEGORIES.filter(item => exam.workspaceFilter === 'all' || wlCats[item.id] === exam.workspaceFilter).map(item => `
-            <button class="wl-card${item.id === state.selectedExamId ? ' selected' : ''}" data-action="choose-exam" data-exam="${item.id}">
-              <span class="wl-card-top">
-                <span class="wl-card-icon">${examIconSvg(item.id, 20)}</span>
-                ${item.id === state.selectedExamId ? '<span class="wl-card-pill">ACTIVE WORKSPACE</span>' : ''}
-              </span>
-              <span class="wl-card-title">${esc(item.code)}</span>
-              <span class="wl-card-sub">${esc(item.name)} (${esc(item.tier)})</span>
-              <span class="wl-card-stats">
-                <span><small>MOCK PAPERS</small><b>${item.totalMocks} Series Available</b></span>
-                <span><small>PATTERN</small><b>${esc(wlPatterns[item.id] || `${item.totalMarks} Marks`)}</b></span>
-              </span>
-              <span class="wl-card-go">${iconSvg('play-circle', 15)}Launch Mock Engine ${iconSvg('arrow-right', 15)}</span>
-            </button>`).join('') || `<div class="wl-cards-empty">No workspaces in this filter — switch back to All Exams.</div>`}
-        </div>
+      <section class="welcome-exams-section" id="wl-exams">
+        <div class="welcome-section-heading"><div><span class="welcome-kicker-small">CHOOSE YOUR PATH</span><h2>Which exam are you preparing for?</h2><p>Select your target to open a workspace built around that exam.</p></div></div>
+        <div class="welcome-filter-row">${filters.map(([id, label]) => `<button class="welcome-filter ${exam.workspaceFilter === id ? 'active' : ''}" data-action="wl-filter" data-cat="${id}">${label}</button>`).join('')}</div>
+        <div class="welcome-exam-grid">${examCards || '<div class="empty-state">No exams match this filter.</div>'}</div>
       </section>
-
-      <section class="wl-platform" id="wl-features">
-        <div class="wl-platform-left">
-          <div class="wl-section-head"><span class="wl-kicker-sm">TCS iON Standard</span><h2>Built to Replicate Actual Exam Environment</h2></div>
-          <div class="wl-platform-grid">
-            ${wlFeatures.map(item => `<div class="wl-feature"><span class="wl-feature-icon tint-${item.tint}">${iconSvg(item.icon, 19)}</span><h4>${esc(item.title)}</h4><p>${esc(item.text)}</p></div>`).join('')}
-          </div>
-        </div>
-        <aside class="wl-board" id="wl-rankings">
-          <div class="wl-board-head">
-            <span class="wl-board-trophy">${iconSvg('trophy', 18)}</span>
-            <div class="wl-board-title"><h3>Weekly AIR Leaderboard</h3><small>All India Rankings (Updated Live)</small></div>
-            <span class="wl-board-live">LIVE</span>
-          </div>
-          <div class="wl-board-rows">${LEADERBOARD_DATA.slice(0, 3).map((row, i) => rankOf(row, i)).join('')}</div>
-          <div class="wl-board-note">AIR points recalculate dynamically upon submitting any full-length mock.</div>
-        </aside>
+      <section class="welcome-features-section">
+        <div class="welcome-section-heading"><div><span class="welcome-kicker-small">BUILT FOR PRACTICE</span><h2>Everything you need. Nothing in the way.</h2><p>Keep the important study tools close and the interface out of your way.</p></div></div>
+        <div class="welcome-feature-grid">${features.map(([icon, title, copy], index) => `<article class="welcome-feature-card"><span class="welcome-feature-index">0${index + 1}</span><span class="welcome-feature-icon">${iconSvg(icon, 19)}</span><h3>${title}</h3><p>${copy}</p></article>`).join('')}</div>
       </section>
+      <section class="welcome-bottom-cta"><div><span class="welcome-kicker-small">READY WHEN YOU ARE</span><h2>Start with one paper today.</h2><p>Choose an exam and make your next session count.</p></div><button class="btn btn-primary" data-action="start-free">${iconSvg('play', 14)} Start a free mock</button></section>
     </main>
-    <footer class="wl-footer">
-      <div class="wl-footer-cols">
-        <div class="wl-footer-brand">
-          <div class="wl-brand"><span class="wl-brand-mark">${iconSvg('play', 13)}</span><span class="wl-brand-name">SSC <b>Flix</b></span></div>
-          <p>High-precision exam preparation platform built for SSC aspirants. Practice on authentic TCS iON CBT mock tests with instant analytics and All-India rankings.</p>
-        </div>
-        <div class="wl-footer-col"><h4>Platform Features</h4><span class="wl-f-link" data-action="wl-goto" data-target="wl-features">TCS iON Screen Replica</span><span class="wl-f-link" data-action="wl-goto" data-target="wl-rankings">All India Rank Ticker</span><span class="wl-f-link" data-action="wl-goto" data-target="wl-features">Bilingual Solution Sets</span><span class="wl-f-link" data-action="wl-goto" data-target="wl-features">Cutoff Analytics Engine</span><span class="wl-f-link" data-action="wl-goto" data-target="wl-exams">Study &amp; Practice Mode</span></div>
-        <div class="wl-footer-col"><h4>Support &amp; Legal</h4><span class="wl-f-link muted">Help Center &amp; FAQ</span><span class="wl-f-link muted">Privacy Policy</span><span class="wl-f-link muted">Terms of Service</span><span class="wl-f-link muted">Cookie Preferences</span><span class="wl-f-link" data-action="open-subscription">Contact Team &amp; Pricing</span></div>
-      </div>
-      <div class="wl-footer-bar">
-        <span>© ${new Date().getFullYear()} SSC Flix. All rights reserved.</span>
-        <span class="wl-footer-note">Demonstration landing page interface · all marks and logos belong to their respective exam authorities</span>
-      </div>
-    </footer>
-  </div>${renderModal()}`;
+    <footer class="welcome-footer"><span>© ${new Date().getFullYear()} SSC Flix</span><span>Independent exam-preparation demo · Not affiliated with the Staff Selection Commission.</span><button data-action="open-subscription">View Pro plans</button></footer>
+  </div>`;
 }
 function dashboardPage() {
   const examItem = currentExam();
@@ -1288,7 +1222,7 @@ function renderExam() {
     if (exam.paletteFilter === 'MARKED') return ['MARKED','ANSWERED_MARKED'].includes(item.status);
     return true;
   });
-  app.innerHTML = `<div class="exam-shell">
+  app.innerHTML = `<div class="exam-shell exam-v4">
     <header class="exam-header"><div class="exam-brand"><div class="exam-logo">TCS</div><div><h1>${esc(exam.title)} <span class="tag">${exam.studyMode ? 'Study CBT' : 'Official CBT Engine'}</span></h1><p>Candidate: ${esc(state.user.name)} | Roll: ${esc(state.user.rollNo)}</p></div></div><div class="exam-header-actions">${exam.studyMode ? `<div class="timer-box study"><span>${iconSvg('lightbulb', 13)}</span><div><small>Study Session</small><strong>Answers visible</strong></div></div>` : `<div class="timer-box ${exam.timeLeft < 300 ? 'warning' : ''}"><span>◷</span><div><small>Time Remaining</small><strong id="examTimer">${formatTime(exam.timeLeft)}</strong></div></div>`}<button class="lang-btn" data-action="toggle-language">◎ ${isHindi() ? 'English' : 'Hindi'}</button>${exam.studyMode ? '' : `<button class="lang-btn hide-mobile" data-action="pause-test">${iconSvg('pause', 13)} Pause Test</button><button class="lang-btn hide-mobile" data-action="instructions">? Guidelines</button>`}</div></header>
     <div class="exam-body"><section class="exam-main"><div class="exam-tabs">${activeSections.map(item => { const secQuestions = questionsFor(item.id); const answered = secQuestions.filter(question => ['ANSWERED','ANSWERED_MARKED'].includes(state.userState[question.id]?.status)).length; return `<button class="exam-tab ${exam.sectionId === item.id ? 'active' : ''}" data-action="exam-section" data-section="${item.id}">${esc(isHindi() ? item.nameHi : item.name)} <small>${answered}/${secQuestions.length}</small></button>`; }).join('')}</div>
       <div class="question-heading"><div><strong>Question No. ${q.num}</strong><span class="marks">${exam.studyMode ? 'Self-check question — instant solution below' : '+2.0 Marks | −0.5 Negative'}</span></div><div class="heading-actions"><button class="btn ${state.bookmarkedIds.includes(q.id) ? 'btn-warning' : 'btn-ghost'}" style="padding:7px 10px" data-action="bookmark-current">☆ ${state.bookmarkedIds.includes(q.id) ? 'Bookmarked' : 'Bookmark'}</button>${exam.studyMode ? '' : `<button class="btn btn-ghost" style="padding:7px 10px" data-action="report-question">${iconSvg('flag', 13)} Report</button>`}</div></div>
@@ -1312,7 +1246,7 @@ function renderExamGate() {
     `You may toggle between <strong>English and Hindi</strong> for questions anytime from the header language button.`,
     `This is a <strong>sample demo attempt</strong>. Do not refresh or leave the page while the exam is running; the local session keeps your answers.`
   ];
-  return `<div class="exam-shell">
+  return `<div class="exam-shell exam-v4">
     <header class="exam-header"><div class="exam-brand"><div class="exam-logo">TCS</div><div><h1>${esc(exam.title)} <span class="tag">Official CBT Engine</span></h1><p>Candidate: ${esc(state.user.name)} | Roll: ${esc(state.user.rollNo)}</p></div></div></header>
     <div class="exam-gate">
       <aside class="exam-gate-side">
