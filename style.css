@@ -4932,3 +4932,31 @@ body.light .exam-v4 .gate-instructions-v2 { background-color: #fff; }
   .exam-v4 .gate-legend-item-v2 { min-height: 36px; }
   .exam-v4 .gate-actions-v2 { grid-template-columns: minmax(0, 1fr); }
 }
+
+
+
+/* Scroll fix — instruction screen must grow with its content.
+   The running CBT keeps the original fixed-height, internally managed layout. */
+.exam-shell.exam-v4.exam-gate-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: auto !important;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow: visible !important;
+}
+.exam-v4 .exam-gate-v2 {
+  flex: 0 0 auto;
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  overflow: visible !important;
+}
+.exam-v4 .exam-gate-v2 .gate-instructions-v2 {
+  overflow: visible;
+}
+.exam-v4 .exam-gate-v2 .gate-rules-v2 {
+  max-height: none;
+  overflow: visible;
+}
