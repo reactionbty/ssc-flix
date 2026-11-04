@@ -870,14 +870,27 @@ function renderHeader() {
       </button>
     </div>
     <div class="top-actions">
-      <div class="search-wrap"><span class="search-icon">${iconSvg('search', 15)}</span><input id="globalSearch" class="search-input" type="search" placeholder="Search mocks, PYQs, reasoning..." value="${esc(state.globalSearch)}" aria-label="Search study content"></div>
-      <button class="lang-btn" data-action="toggle-language" title="Switch language">${iconSvg('globe', 14)} <span>${isHindi() ? 'HI' : 'EN'}</span></button>
+      <div class="search-wrap desktop-search-wrap"><span class="search-icon">${iconSvg('search', 15)}</span><input id="globalSearch" class="search-input" type="search" placeholder="Search mocks, PYQs, reasoning..." value="${esc(state.globalSearch)}" aria-label="Search study content"></div>
+      <button class="lang-btn desktop-header-control" data-action="toggle-language" title="Switch language">${iconSvg('globe', 14)} <span>${isHindi() ? 'HI' : 'EN'}</span></button>
       <button class="icon-btn" data-action="toggle-mode" title="${state.themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}">${iconSvg(state.themeMode === 'light' ? 'moon' : 'sun', 16)}</button>
-      <button class="icon-btn" data-action="notifications" aria-label="Notifications" title="Notifications">${iconSvg('bell', 16)}<span class="dot"></span></button>
-      ${state.user.isLoggedIn ? `<button class="profile-btn" data-action="profile" aria-label="Open profile">${avatarHtml(28)}<span class="profile-name">${esc(state.user.name)}</span>${iconSvg('chevron-down', 13)}</button>` : `<button class="btn btn-primary" data-action="open-auth">Sign In</button>`}
+      <button class="icon-btn desktop-header-control" data-action="notifications" aria-label="Notifications" title="Notifications">${iconSvg('bell', 16)}<span class="dot"></span></button>
+      ${state.user.isLoggedIn ? `<button class="profile-btn" data-action="profile" aria-label="Open profile" aria-expanded="${exam.profileOpen ? 'true' : 'false'}">${avatarHtml(28)}<span class="profile-name">${esc(state.user.name)}</span>${iconSvg('chevron-down', 13)}</button>` : `<button class="btn btn-primary" data-action="open-auth">Sign In</button>`}
     </div>
-    ${exam.profileOpen ? `<div class="profile-menu"><div class="menu-head">${avatarHtml(40)}<div class="menu-id"><strong>${esc(state.user.name)}</strong><small>${esc(state.user.email)}</small><div class="tag gold" style="margin-top:6px">${esc(state.user.plan)} PASS ACTIVE</div></div></div><button class="menu-item" data-action="open-subscription">${iconSvg('crown', 13)} Subscription Plan</button><button class="menu-item" data-action="nav" data-tab="settings">${iconSvg('settings', 13)} Preferences</button><button class="menu-item text-rose" data-action="logout">${iconSvg('log-out', 13)} Sign Out</button></div>` : ''}
-    ${exam.notificationsOpen ? `<div class="notification-menu"><div class="row-between"><h4>Exam Notifications</h4><button class="btn btn-ghost" data-action="notifications">×</button></div><div class="notification-item">${iconSvg('bell', 13)} <strong>${esc(currentExam().code)} 2026:</strong> Official Tier-1 Mock Series #09 is now live!</div><div class="notification-item">${iconSvg('zap', 13)} <strong>Daily Challenge:</strong> Solve 15 Quant questions to maintain streak.</div></div>` : ''}
+    ${exam.profileOpen ? `<div class="profile-menu">
+      <div class="menu-head">${avatarHtml(40)}<div class="menu-id"><strong>${esc(state.user.name)}</strong><small>${esc(state.user.email)}</small><div class="tag gold" style="margin-top:6px">${esc(state.user.plan)} PASS ACTIVE</div></div></div>
+      <div class="profile-mobile-tools">
+        <label class="profile-search-wrap"><span class="search-icon">${iconSvg('search', 15)}</span><input id="globalSearchMobile" class="search-input" type="search" placeholder="Search mocks, PYQs, reasoning..." value="${esc(state.globalSearch)}" aria-label="Search study content"></label>
+        <div class="profile-tools-row">
+          <button class="profile-tool-button" data-action="toggle-language">${iconSvg('globe', 15)}<span>Language</span><strong>${isHindi() ? 'Hindi' : 'English'}</strong></button>
+          <button class="profile-tool-button" data-action="profile-notifications" aria-expanded="${exam.notificationsOpen ? 'true' : 'false'}">${iconSvg('bell', 15)}<span>Notifications</span><strong>${exam.notificationsOpen ? 'Hide' : 'View'}</strong></button>
+        </div>
+        ${exam.notificationsOpen ? `<div class="profile-notifications-panel"><div class="profile-notifications-heading">Notifications</div><div class="notification-item">${iconSvg('bell', 13)} <span><strong>${esc(currentExam().code)} 2026:</strong> Official Tier-1 Mock Series #09 is now live!</span></div><div class="notification-item">${iconSvg('zap', 13)} <span><strong>Daily Challenge:</strong> Solve 15 Quant questions to maintain streak.</span></div></div>` : ''}
+      </div>
+      <button class="menu-item" data-action="open-subscription">${iconSvg('crown', 13)} Subscription Plan</button>
+      <button class="menu-item" data-action="nav" data-tab="settings">${iconSvg('settings', 13)} Preferences</button>
+      <button class="menu-item text-rose" data-action="logout">${iconSvg('log-out', 13)} Sign Out</button>
+    </div>` : ''}
+    ${exam.notificationsOpen && !exam.profileOpen ? `<div class="notification-menu"><div class="row-between"><h4>Exam Notifications</h4><button class="btn btn-ghost" data-action="notifications">×</button></div><div class="notification-item">${iconSvg('bell', 13)} <strong>${esc(currentExam().code)} 2026:</strong> Official Tier-1 Mock Series #09 is now live!</div><div class="notification-item">${iconSvg('zap', 13)} <strong>Daily Challenge:</strong> Solve 15 Quant questions to maintain streak.</div></div>` : ''}
     ${renderExamSwitcher()}
   </header>`;
 }
@@ -1482,6 +1495,7 @@ app.addEventListener('click', event => {
     case 'toggle-language': state.lang = isHindi() ? 'en' : 'hi'; render(); break;
     case 'toggle-mode': state.themePreferenceSet = true; state.themeMode = state.themeMode === 'light' ? 'dark' : 'light'; applyTheme(); persist(); render(); showToast(state.themeMode === 'light' ? 'Light mode on' : 'Dark mode on', iconSvg(state.themeMode === 'light' ? 'sun' : 'moon', 14)); break;
     case 'notifications': exam.notificationsOpen = !exam.notificationsOpen; exam.profileOpen = false; exam.examSwitchOpen = false; render(); break;
+    case 'profile-notifications': exam.notificationsOpen = !exam.notificationsOpen; exam.profileOpen = true; exam.examSwitchOpen = false; render(); break;
     case 'profile': exam.profileOpen = !exam.profileOpen; exam.notificationsOpen = false; exam.examSwitchOpen = false; render(); break;
     case 'open-subscription': exam.activeModal = 'subscription'; render(); break;
     case 'open-auth': exam.activeModal = 'auth'; exam.authMode = button.dataset.mode || 'login'; render(); break;
@@ -1590,13 +1604,16 @@ app.addEventListener('change', event => {
 });
 app.addEventListener('input', event => {
   const target = event.target;
-  if (target.id === 'globalSearch') {
+  if (target.id === 'globalSearch' || target.id === 'globalSearchMobile') {
     const caret = target.selectionStart;
+    const activeSearchId = target.id;
     state.globalSearch = target.value;
-    const inExam = exam.active;
     render();
-    const fresh = $('#globalSearch');
-    if (fresh) { fresh.focus(); fresh.setSelectionRange(caret, caret); }
+    const fresh = document.getElementById(activeSearchId);
+    if (fresh) {
+      fresh.focus();
+      if (typeof caret === 'number') fresh.setSelectionRange(caret, caret);
+    }
   }
   if (target.dataset.noteId) {
     state.customNotes[target.dataset.noteId] = target.value;
