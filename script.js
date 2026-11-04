@@ -1141,13 +1141,23 @@ function bookmarksPage() {
   const shortName = { quant: 'Quant', reasoning: 'Reasoning', english: 'English', ga: 'General Awareness', computer: 'Computer' };
   const counts = {};
   PRACTICE_LIST.forEach(s => { counts[s.id] = bookmarked.filter(q => (q.sectionId || '') === s.id).length; });
-  const subjectId = (counts[state.bookmarksSubject] ? state.bookmarksSubject : (PRACTICE_LIST.find(s => counts[s.id]) || {}).id) || 'quant';
+  const subjectId = counts[state.bookmarksSubject] ? state.bookmarksSubject : ((PRACTICE_LIST.find(s => counts[s.id]) || {}).id || 'quant');
   const activeName = shortName[subjectId] || 'Unknown';
   const list = bookmarked.filter(q => (q.sectionId || '') === subjectId).filter(q => searchMatch(q.text) || searchMatch(q.textHi) || searchMatch(q.sectionId) || searchMatch(examItem.code));
-  const rowHtml = q => `<article class="card mock-card" style="margin-bottom:11px"><div style="min-width:0"><div class="row" style="flex-wrap:wrap"><span class="tag accent">${esc(shortName[q.sectionId] || q.sectionId)}</span></div><p class="question-text" style="margin-top:11px">${esc(questionText(q))}</p><div class="solution-info" style="margin-top:11px"><strong class="text-gold">Correct: Option ${String.fromCharCode(65 + q.correct)}</strong><p style="margin:5px 0 0">${esc(q.explanation)}</p></div></div><div class="row" style="gap:8px"><button class="btn btn-primary" data-action="resolve-bookmark" data-id="${q.id}">Re-solve</button><button class="btn btn-danger" style="padding:8px 12px" data-action="remove-bookmark" data-id="${q.id}">Remove</button></div></article>`;
-  return `<section class="page"><div class="page-heading"><div><h2>${esc(examItem.name)} (${esc(examItem.code)}) Bookmarks</h2><p>${bookmarked.length ? `${bookmarked.length} flagged question${bookmarked.length === 1 ? '' : 's'} saved from your attempts — re-solve anytime, remove once revised` : 'No bookmarks yet — flag tricky questions during any test with the Review Mark button'}</p></div></div>
-    <div class="mock-controls">${PRACTICE_LIST.some(s => counts[s.id]) ? `<div class="toggle-group">${PRACTICE_LIST.filter(s => counts[s.id]).map(s => `<button class="btn ${s.id === subjectId ? 'active' : 'btn-ghost'}" data-action="bookmarks-subject" data-subject="${s.id}">${shortName[s.id]} (${counts[s.id]})</button>`).join('')}</div>` : ''}</div>
-    ${list.length ? list.map(rowHtml).join('') : (bookmarked.length ? `<div class="empty-state">No bookmarked ${esc(activeName)} questions${state.globalSearch ? ' match your search' : ''}.</div>` : `<div class="empty-state">Nothing bookmarked yet. During a mock or chapter test, use Review Mark to save tricky questions here.</div>`)}
+  const rowHtml = q => `<article class="saved-question-card">
+    <div class="saved-question-head"><span class="library-tag year">${esc(shortName[q.sectionId] || q.sectionId)}</span><span class="saved-question-label">SAVED QUESTION</span></div>
+    <p class="saved-question-text">${esc(questionText(q))}</p>
+    <div class="saved-answer"><span>Correct answer</span><strong>Option ${String.fromCharCode(65 + q.correct)}</strong><p>${esc(q.explanation)}</p></div>
+    <div class="saved-question-actions"><button class="btn btn-primary" data-action="resolve-bookmark" data-id="${q.id}">${iconSvg('refresh-cw', 13)} Re-solve</button><button class="btn btn-secondary" data-action="remove-bookmark" data-id="${q.id}">${iconSvg('bookmark-minus', 13)} Remove</button></div>
+  </article>`;
+  const tabs = PRACTICE_LIST.filter(s => counts[s.id]).map(s =>
+    `<button class="saved-filter-tab ${s.id === subjectId ? 'active' : ''}" data-action="bookmarks-subject" data-subject="${s.id}">${shortName[s.id]} <span>${counts[s.id]}</span></button>`
+  ).join('');
+  return `<section class="page saved-page-v3">
+    <header class="saved-page-head"><div><span class="library-page-kicker">YOUR SAVED WORK</span><h1>Bookmarks</h1><p>Questions you marked for a second look. Revisit them whenever you revise a topic.</p></div><div class="saved-total"><strong>${bookmarked.length}</strong><span>saved questions</span></div></header>
+    <div class="saved-filter-row">${tabs || '<span class="saved-filter-empty">Subject filters will appear when you save questions.</span>'}</div>
+    <div class="saved-list-heading"><strong>${esc(activeName)} questions</strong><span>${list.length} shown</span></div>
+    <div class="saved-question-list">${list.length ? list.map(rowHtml).join('') : (bookmarked.length ? `<div class="empty-state">No bookmarked ${esc(activeName)} questions${state.globalSearch ? ' match your search' : ''}.</div>` : `<div class="saved-empty-state"><span>${iconSvg('bookmark', 22)}</span><strong>No bookmarks yet</strong><p>Mark a tricky question during a mock or chapter test and it will be saved here.</p><button class="btn btn-primary" data-action="nav" data-tab="mocks">Browse mock tests</button></div>`)}</div>
   </section>`;
 }
 function myTestsPage() {
@@ -1156,10 +1166,19 @@ function myTestsPage() {
   const rows = state.myTests.filter(t => pending ? t.status === 'pending' : t.status === 'attempted').filter(t => searchMatch(t.title) || searchMatch(examItem.code));
   const countAttempted = state.myTests.filter(t => t.status === 'attempted').length;
   const countPending = state.myTests.length - countAttempted;
-  const rowHtml = t => `<article class="card mock-card" style="margin-bottom:11px"><div><div class="row" style="flex-wrap:wrap"><h3>${esc(t.title)}</h3><span class="tag">${esc(t.kind)}</span><span class="tag ${pending ? 'gold' : 'green'}">${pending ? 'PENDING' : 'ATTEMPTED'}</span></div><p class="mock-meta">${pending ? `${t.answered} of ${t.total} answered • left ${esc(t.when)}` : `Score submitted • ${esc(t.when)}`}</p></div><div class="row">${pending ? `<div style="text-align:right"><span class="metric-label">Answered</span><div class="text-gold mono" style="font-size:10px;margin-top:4px">${t.answered} / ${t.total}</div></div><button class="btn btn-primary" data-action="start-mytest" data-title="${esc(t.title)}">Resume Attempt</button>` : `<div style="text-align:right"><span class="metric-label">Score</span><div class="text-green mono" style="font-size:10px;margin-top:4px">${esc(t.score)}</div></div><button class="btn btn-primary" data-action="start-mytest" data-title="${esc(t.title)}">Re-attempt</button>`}</div></article>`;
-  return `<section class="page"><div class="page-heading"><div><h2>${esc(examItem.name)} (${esc(examItem.code)}) My Tests</h2><p>${pending ? 'Tests you started but did not submit — jump right back where you left off' : 'Every test you completed, with your latest score'}</p></div><div class="toggle-group"><button class="btn ${!state.studyModeActive ? 'active' : 'btn-ghost'}" data-action="study-mode" data-value="false">Test Mode</button><button class="btn ${state.studyModeActive ? 'active' : 'btn-ghost'}" data-action="study-mode" data-value="true">Study Mode</button></div></div>
-    <div class="mock-controls"><div class="toggle-group"><button class="btn ${!pending ? 'active' : 'btn-ghost'}" data-action="mytests-view" data-view="attempted">Attempted (${countAttempted})</button><button class="btn ${pending ? 'active' : 'btn-ghost'}" data-action="mytests-view" data-view="pending">Pending (${countPending})</button></div></div>
-    ${rows.length ? rows.map(rowHtml).join('') : (pending ? '<div class="empty-state">No tests left pending — you have finished everything you started.</div>' : '<div class="empty-state">No tests attempted yet — start any mock, PYQ paper, or chapter test.</div>')}
+  const rowHtml = t => `<article class="my-test-card">
+    <div class="my-test-main"><span class="my-test-icon">${iconSvg(t.kind === 'PYQ' ? 'history' : t.kind === 'Sectional' ? 'layers' : 'monitor', 18)}</span>
+      <div class="my-test-copy"><div class="my-test-title-row"><h3>${esc(t.title)}</h3><span class="library-tag">${esc(t.kind)}</span><span class="library-tag ${pending ? 'pending' : 'complete'}">${pending ? 'Pending' : 'Attempted'}</span></div>
+      <p>${pending ? `${t.answered} of ${t.total} questions answered · ${esc(t.when)}` : `Submitted ${esc(t.when)}`}</p></div>
+    </div>
+    <div class="my-test-side">${pending ? `<div class="my-test-score"><small>PROGRESS</small><strong>${t.answered}/${t.total}</strong></div>` : `<div class="my-test-score"><small>LAST SCORE</small><strong>${esc(t.score)}</strong></div>`}
+      <button class="btn ${pending ? 'btn-secondary' : 'btn-primary'}" data-action="start-mytest" data-title="${esc(t.title)}">${pending ? 'Open test' : 'Re-attempt'} ${iconSvg('arrow-right', 13)}</button>
+    </div>
+  </article>`;
+  return `<section class="page saved-page-v3 my-tests-page-v3">
+    <header class="saved-page-head"><div><span class="library-page-kicker">YOUR TEST HISTORY</span><h1>My tests</h1><p>Review your completed papers or return to a test you have not submitted.</p></div><div class="my-tests-summary"><div><strong>${countAttempted}</strong><span>attempted</span></div><div><strong>${countPending}</strong><span>pending</span></div></div></header>
+    <div class="my-tests-toolbar"><div class="saved-filter-row"><button class="saved-filter-tab ${!pending ? 'active' : ''}" data-action="mytests-view" data-view="attempted">Attempted <span>${countAttempted}</span></button><button class="saved-filter-tab ${pending ? 'active' : ''}" data-action="mytests-view" data-view="pending">Pending <span>${countPending}</span></button></div><div class="library-mode-switch"><button class="${!state.studyModeActive ? 'active' : ''}" data-action="study-mode" data-value="false">Test mode</button><button class="${state.studyModeActive ? 'active' : ''}" data-action="study-mode" data-value="true">Study mode</button></div></div>
+    <div class="my-test-list">${rows.length ? rows.map(rowHtml).join('') : `<div class="saved-empty-state"><span>${iconSvg('clipboard-check', 22)}</span><strong>${pending ? 'No pending tests' : 'No completed tests yet'}</strong><p>${pending ? 'You are all caught up. Start a mock or practice set to continue.' : 'Your completed papers and scores will appear here after you submit a test.'}</p><button class="btn btn-primary" data-action="nav" data-tab="mocks">Explore tests</button></div>`}</div>
   </section>`;
 }
 function leaderboardPage() {
@@ -1168,31 +1187,46 @@ function leaderboardPage() {
   const scored = LEADERBOARD_DATA.map(row => ({ ...row, pts: weekly ? row.weekly : row.total })).sort((a, b) => b.pts - a.pts);
   const top3 = scored.slice(0, 3);
   const list = scored.map((row, i) => ({ ...row, pos: i + 1 })).filter(row => searchMatch(row.name) || searchMatch(row.state) || searchMatch(examItem.code));
-  const podiumCard = ([row, pos]) => `<article class="card podium${pos === 1 ? ' podium-first' : ''}"><span class="podium-rank ${pos === 1 ? 'gold' : pos === 2 ? 'silver' : 'bronze'}">${pos}</span><h4>${esc(row.name)}</h4><p>${esc(row.state)} • ${row.tests} tests</p><div class="podium-pts">${row.pts.toLocaleString()} pts</div></article>`;
-  const rowHtml = row => `<div class="leader-row ${row.isUser ? 'is-user' : ''}"><div class="row"><strong class="mono muted">#${row.pos}</strong><div><strong>${esc(row.name)}</strong>${row.isUser ? '<span class="tag accent" style="margin-left:7px">YOU</span>' : ''}<div class="table-muted">${esc(row.state)} • ${row.tests} test${row.tests === 1 ? '' : 's'} ${weekly ? 'this week' : 'all time'}</div></div></div><div class="row"><div style="text-align:right"><span class="metric-label">Points</span><div class="text-accent mono" style="margin-top:4px;font-weight:800">${row.pts.toLocaleString()}</div></div></div></div>`;
-  return `<section class="page"><div class="page-heading"><div><h2>${esc(examItem.name)} (${esc(examItem.code)}) Leaderboard</h2><p>Every submitted test earns points — +3 per correct answer, −1 per wrong. The weekly board resets each Monday, 12:00 AM.</p></div></div>
-    <div class="mock-controls"><div class="toggle-group"><button class="btn ${weekly ? 'active' : 'btn-ghost'}" data-action="leaderboard-view" data-view="weekly">This Week</button><button class="btn ${!weekly ? 'active' : 'btn-ghost'}" data-action="leaderboard-view" data-view="alltime">All Time</button></div></div>
-    <div class="grid grid-3" style="align-items:end;margin-bottom:15px">${top3.map((row, i) => podiumCard([row, i + 1])).join('')}</div>
-    <article class="card" style="padding:0;overflow:hidden">${list.length ? list.map(rowHtml).join('') : '<div class="empty-state">No leaderboard matches your search.</div>'}</article>
+  const podiumCard = ([row, pos]) => `<article class="leader-podium-card rank-${pos}">
+    <span class="leader-rank">#${pos}</span><div class="leader-podium-avatar">${esc(row.name.split(' ').map(part => part[0]).slice(0,2).join(''))}</div>
+    <strong>${esc(row.name)}</strong><small>${esc(row.state)} · ${row.tests} tests</small><b>${row.pts.toLocaleString()} <span>pts</span></b>
+  </article>`;
+  const rowHtml = row => `<article class="leaderboard-row ${row.isUser ? 'is-user' : ''}">
+    <span class="leaderboard-position">${String(row.pos).padStart(2, '0')}</span><div class="leaderboard-person"><strong>${esc(row.name)} ${row.isUser ? '<em>YOU</em>' : ''}</strong><small>${esc(row.state)} · ${row.tests} tests ${weekly ? 'this week' : 'all time'}</small></div>
+    <strong class="leaderboard-points">${row.pts.toLocaleString()} <small>pts</small></strong>
+  </article>`;
+  return `<section class="page saved-page-v3 leaderboard-page-v3">
+    <header class="saved-page-head"><div><span class="library-page-kicker">COMMUNITY PERFORMANCE</span><h1>Leaderboard</h1><p>See how aspirants are progressing in the ${esc(examItem.code)} workspace.</p></div><div class="library-tabs"><button class="library-tab ${weekly ? 'active' : ''}" data-action="leaderboard-view" data-view="weekly">This week</button><button class="library-tab ${!weekly ? 'active' : ''}" data-action="leaderboard-view" data-view="alltime">All time</button></div></header>
+    <section class="leaderboard-podium">${top3.map((row, i) => podiumCard([row, i + 1])).join('')}</section>
+    <div class="leaderboard-list-head"><strong>Rankings</strong><span>${list.length} aspirants</span></div>
+    <div class="leaderboard-list">${list.length ? list.map(rowHtml).join('') : '<div class="empty-state">No leaderboard matches your search.</div>'}</div>
+    <p class="leaderboard-note">Demo leaderboard data · points are based on the sample scoring model shown in this workspace.</p>
   </section>`;
 }
 function settingsPage() {
   const u = state.user;
   const themes = [['violet', 'Violet', '#6254d9'], ['emerald', 'Emerald', '#2b9b75'], ['ocean', 'Ocean', '#5688de']];
   const photoActive = u.avatarType === 'photo' && u.avatarImage;
-  const profileCard = `<article class="card"><h3 class="section-title">${iconSvg('user', 14)} Profile</h3>
-    <div class="avatar-edit">
-      ${avatarHtml(64, 'avatar-big')}
-      <div class="avatar-edit-copy"><strong>${esc(u.name)}</strong><small>${esc(u.email)} • ${esc(u.plan)} PASS</small></div>
-      <div class="avatar-upload"><button class="btn btn-primary" data-action="avatar-upload">${iconSvg('camera', 14)} Upload photo</button>${photoActive ? `<button class="btn btn-ghost" data-action="avatar-photo-remove">${iconSvg('x-circle', 14)} Remove photo</button>` : ''}</div>
-    </div>
+  const themeModeLabel = state.themeMode === 'light' ? 'Light appearance' : 'Dark appearance';
+  const profileCard = `<article class="settings-card">
+    <div class="settings-card-heading"><span class="settings-card-icon">${iconSvg('user', 17)}</span><div><h2>Profile</h2><p>Your account details and display name</p></div></div>
+    <div class="settings-profile-line">${avatarHtml(58, 'avatar-big')}<div class="avatar-edit-copy"><strong>${esc(u.name)}</strong><small>${esc(u.email)} · ${esc(u.plan)} PASS</small></div></div>
+    <div class="settings-action-row"><button class="btn btn-secondary" data-action="avatar-upload">${iconSvg('camera', 14)} Upload photo</button>${photoActive ? `<button class="btn btn-ghost" data-action="avatar-photo-remove">Remove photo</button>` : ''}</div>
     <input id="avatarUpload" type="file" accept="image/*" data-change="avatar-file" hidden>
-    <div class="divider"></div>
-    <label class="label" for="settingsName">DISPLAY NAME</label><input id="settingsName" class="field" value="${esc(u.name)}" data-change="display-name">
+    <label class="settings-field-label" for="settingsName">DISPLAY NAME</label><input id="settingsName" class="field" value="${esc(u.name)}" data-change="display-name">
   </article>`;
-  const interfaceCard = `<article class="card"><h3 class="section-title">${iconSvg('sparkles', 14)} Interface</h3><label class="label">ACCENT COLOR</label><div class="theme-options">${themes.map(([id, label, color]) => `<button class="theme-chip ${state.accentTheme === id ? 'active' : ''}" data-action="theme" data-theme="${id}"><span class="color-dot" style="background:${color}"></span>${label}</button>`).join('')}</div><div class="divider"></div><label class="label" for="settingsLanguage">DEFAULT TEST LANGUAGE</label><select id="settingsLanguage" class="field" data-change="language"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English (Official Standard)</option><option value="hi" ${state.lang === 'hi' ? 'selected' : ''}>Hindi (हिंदी माध्यम)</option></select></article>`;
-  const examCard = `<article class="card"><h3 class="section-title">${iconSvg('target', 14)} Exam & Test Defaults</h3><label class="label" for="settingsExam">PRIMARY TARGET EXAM</label><select id="settingsExam" class="field" data-change="exam">${EXAM_CATEGORIES.map(item => `<option value="${item.id}" ${item.id === state.selectedExamId ? 'selected' : ''}>${esc(item.code)} — ${esc(item.name)}</option>`).join('')}</select><p class="hint" style="margin-top:9px">Switching the target exam re-targets the dashboard, mock series, PYQ papers, chapter tests and the leaderboard instantly from the header pill.</p></article>`;
-  return `<section class="page settings-page"><div class="page-heading"><div><h2>Preferences & Customization</h2><p>Set your profile, UI accent, language, and exam focus.</p></div></div>${profileCard}<div class="settings-grid">${interfaceCard}${examCard}</div></section>`;
+  const interfaceCard = `<article class="settings-card">
+    <div class="settings-card-heading"><span class="settings-card-icon">${iconSvg('sliders-horizontal', 17)}</span><div><h2>Appearance & language</h2><p>Adjust how the portal looks and reads</p></div></div>
+    <div class="settings-option-row"><div><strong>Color mode</strong><small>${themeModeLabel} · light is the default</small></div><button class="settings-mode-button" data-action="toggle-mode">${iconSvg(state.themeMode === 'light' ? 'moon' : 'sun', 15)} Switch to ${state.themeMode === 'light' ? 'dark' : 'light'}</button></div>
+    <div class="settings-divider"></div><label class="settings-field-label">ACCENT COLOR</label><div class="theme-options">${themes.map(([id, label, color]) => `<button class="theme-chip ${state.accentTheme === id ? 'active' : ''}" data-action="theme" data-theme="${id}"><span class="color-dot" style="background:${color}"></span>${label}</button>`).join('')}</div>
+    <div class="settings-divider"></div><label class="settings-field-label" for="settingsLanguage">DEFAULT TEST LANGUAGE</label><select id="settingsLanguage" class="field" data-change="language"><option value="en" ${state.lang === 'en' ? 'selected' : ''}>English</option><option value="hi" ${state.lang === 'hi' ? 'selected' : ''}>Hindi (हिंदी)</option></select>
+  </article>`;
+  const examCard = `<article class="settings-card">
+    <div class="settings-card-heading"><span class="settings-card-icon">${iconSvg('target', 17)}</span><div><h2>Exam preferences</h2><p>Set the exam that shapes your workspace</p></div></div>
+    <label class="settings-field-label" for="settingsExam">PRIMARY TARGET EXAM</label><select id="settingsExam" class="field" data-change="exam">${EXAM_CATEGORIES.map(item => `<option value="${item.id}" ${item.id === state.selectedExamId ? 'selected' : ''}>${esc(item.code)} — ${esc(item.name)}</option>`).join('')}</select>
+    <p class="settings-hint">Changing your target updates the dashboard, mock tests, PYQ list, chapter practice, and leaderboard context.</p>
+  </article>`;
+  return `<section class="page settings-page-v3"><header class="saved-page-head"><div><span class="library-page-kicker">MAKE IT YOURS</span><h1>Preferences</h1><p>Manage your profile, appearance, language, and target exam.</p></div></header><div class="settings-grid-v3">${profileCard}${interfaceCard}${examCard}</div></section>`;
 }
 function renderCurrentPage() {
   switch (state.activeTab) {
