@@ -441,11 +441,15 @@ function makeInitialQuestionState() {
   result.r1.status = 'UNANSWERED';
   return result;
 }
+function todayKey() {
+  const now = new Date();
+  return [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
+}
 function loadState() {
   const base = {
     user: { ...DEFAULT_USER }, activeTab: 'landing', selectedExamId: 'cgl', lang: 'en', accentTheme: 'violet', themeMode: 'light', themePreferenceSet: false,
     globalSearch: '', bookmarkedIds: ['r1', 'q2', 'e1', 'c2'], customNotes: {},
-    userState: makeInitialQuestionState(), studyModeActive: false, showHintsMap: {}, billingCycle: 'annual', mocksView: 'full', sectionalSubject: 'all', pyqView: 'full', pyqYear: 'all', pyqSubject: 'all', practiceSubject: 'quant', bookmarksSubject: 'quant', customNotes: {}, myTestsView: 'attempted', leaderboardView: 'weekly',
+    userState: makeInitialQuestionState(), studyModeActive: false, showHintsMap: {}, billingCycle: 'annual', mocksView: 'full', sectionalSubject: 'all', pyqView: 'full', pyqYear: 'all', pyqSubject: 'all', practiceSubject: 'quant', bookmarksSubject: 'quant', customNotes: {}, myTestsView: 'attempted', leaderboardView: 'weekly', lastStudyTab: '', dailyPlan: { date: todayKey(), completed: [] },
     myTests: [
       { id: 'mt1', title: 'SSC CGL Official Full Mock #01', kind: 'Full Mock', status: 'attempted', score: '152.5 / 200', when: '28 Oct, 7:04 PM' },
       { id: 'mt2', title: 'SSC CGL Sectional: Quantitative Aptitude', kind: 'Sectional', status: 'attempted', score: '40.0 / 50', when: '26 Oct, 9:22 PM' },
@@ -460,6 +464,8 @@ function loadState() {
       ...base, ...saved, isNewVisit: false,
       themeMode: saved.themePreferenceSet ? (saved.themeMode || 'light') : 'light',
       themePreferenceSet: !!saved.themePreferenceSet,
+      lastStudyTab: ['mocks', 'pyq', 'practice'].includes(saved.lastStudyTab) ? saved.lastStudyTab : '',
+      dailyPlan: saved.dailyPlan && saved.dailyPlan.date === base.dailyPlan.date && Array.isArray(saved.dailyPlan.completed) ? saved.dailyPlan : base.dailyPlan,
       user: (() => { const u = { ...base.user, ...(saved.user || {}) }; delete u.avatar; u.avatarType = u.avatarType === 'photo' && u.avatarImage ? 'photo' : 'monogram'; return u; })(),
       userState: { ...base.userState, ...(saved.userState || {}) },
       customNotes: { ...base.customNotes, ...(saved.customNotes || {}) }
@@ -601,7 +607,7 @@ function persist() {
       pyqView: state.pyqView, pyqYear: state.pyqYear, pyqSubject: state.pyqSubject,
       practiceSubject: state.practiceSubject, bookmarksSubject: state.bookmarksSubject,
       myTestsView: state.myTestsView, myTests: state.myTests,
-      leaderboardView: state.leaderboardView
+      leaderboardView: state.leaderboardView, lastStudyTab: state.lastStudyTab, dailyPlan: state.dailyPlan
     }));
   } catch (error) { console.warn('Could not save SSC Flix state:', error); }
 }
@@ -954,40 +960,80 @@ function renderWelcome() {
 }
 function dashboardPage() {
   const examItem = currentExam();
-  const metrics = [
-    { label: 'Mocks attempted', value: '24', detail: 'tests completed', icon: 'file-text' },
-    { label: 'Questions solved', value: '2,840', detail: 'across all subjects', icon: 'brain' },
-    { label: 'Accuracy', value: '89.2%', detail: 'overall practice', icon: 'target' }
+  const firstName = (state.user.name || 'there').trim().split(/\s+/)[0];
+  const studyDestinations = {
+    mocks: { title: 'Mock tests', description: 'Return to full-length and sectional test practice', icon: 'monitor', button: 'Open mock tests' },
+    pyq: { title: 'Previous year papers', description: 'Continue exploring shift-wise PYQs', icon: 'history', button: 'Open PYQ papers' },
+    practice: { title: 'Chapter practice', description: 'Continue with subject-wise chapter practice', icon: 'book-open', button: 'Open chapter practice' }
+  };
+  const lastTab = ['mocks', 'pyq', 'practice'].includes(state.lastStudyTab) ? state.lastStudyTab : '';
+  const continueItem = lastTab
+    ? studyDestinations[lastTab]
+    : { title: 'Start chapter practice', description: 'Choose a subject and work through a focused topic', icon: 'book-open', button: 'Explore subjects' };
+  const tasks = [
+    { id: 'quant', title: 'Practise 15 Quant questions', detail: 'Build speed with a short practice session', icon: 'calculator', tab: 'practice', subject: 'quant' },
+    { id: 'ga', title: 'Revise one GK chapter', detail: 'Spend a focused session on General Awareness', icon: 'book-open', tab: 'practice', subject: 'ga' },
+    { id: 'mock', title: 'Attempt a sectional test', detail: 'Check what you remember under time pressure', icon: 'target', tab: 'mocks' }
   ];
+  const completed = Array.isArray(state.dailyPlan?.completed) ? state.dailyPlan.completed : [];
+  const doneCount = tasks.filter(task => completed.includes(task.id)).length;
+  const todayLabel = new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'short' }).format(new Date());
   const recommendations = [
-    { title: examItem.code + ' Full Mock Test', description: 'A complete timed exam simulation', meta: '100 questions · 60 min', icon: 'monitor', tone: 'violet', action: 'Full mock', premium: false },
-    { title: 'Quantitative Aptitude', description: 'Build speed with focused practice', meta: '25 questions · 20 min', icon: 'zap', tone: 'amber', action: 'Sectional', premium: false },
-    { title: 'Previous Year Questions', description: 'Practice questions from past papers', meta: 'Shift-wise practice', icon: 'history', tone: 'green', action: 'PYQ set', premium: false }
+    { subject: 'quant', label: 'QUANTITATIVE APTITUDE', title: 'Percentage & Averages', detail: 'Strengthen the basics used across many arithmetic questions', icon: 'calculator', tone: 'amber' },
+    { subject: 'ga', label: 'GENERAL AWARENESS', title: 'Polity & Constitution', detail: 'Revise key constitutional concepts and important provisions', icon: 'landmark', tone: 'violet' },
+    { subject: 'english', label: 'ENGLISH', title: 'Spotting Errors', detail: 'Practise sentence structure and common grammar rules', icon: 'book-open', tone: 'green' }
   ];
-  const metricsMarkup = metrics.map(item =>
-    '<article class="dash-stat"><div class="dash-stat-top"><span>' + item.label + '</span><span class="dash-stat-icon">' + iconSvg(item.icon, 16) + '</span></div><strong>' + item.value + '</strong><small>' + item.detail + '</small></article>'
-  ).join('');
-  const recommendationsMarkup = recommendations.map(item =>
-    '<article class="dash-recommend-card tone-' + item.tone + '">' +
-      '<div class="dash-recommend-icon">' + iconSvg(item.icon, 18) + '</div>' +
-      '<div class="dash-recommend-copy"><span>' + item.action + '</span><h3>' + esc(item.title) + '</h3><p>' + item.description + '</p><small>' + item.meta + '</small></div>' +
-      '<button class="dash-recommend-action" data-action="start-recommendation" data-title="' + esc(item.title) + '" data-premium="false" aria-label="Start ' + esc(item.title) + '">' + iconSvg('play-circle', 16) + '</button>' +
+  const quickLinks = [
+    { tab: 'mocks', title: 'Mock tests', detail: 'Full and sectional tests', icon: 'monitor' },
+    { tab: 'pyq', title: 'PYQ papers', detail: 'Previous year questions', icon: 'history' },
+    { tab: 'practice', title: 'Chapter practice', detail: 'Subject-wise topics', icon: 'book-open' },
+    { tab: 'bookmarks', title: 'Bookmarks', detail: 'Saved questions', icon: 'bookmark' }
+  ];
+  const taskMarkup = tasks.map(task => {
+    const isDone = completed.includes(task.id);
+    return '<article class="dash-plan-task' + (isDone ? ' is-done' : '') + '">' +
+      '<button class="dash-task-check" data-action="dashboard-task-toggle" data-task="' + task.id + '" aria-label="' + (isDone ? 'Mark as not done' : 'Mark as done') + '" aria-pressed="' + isDone + '">' +
+        iconSvg(isDone ? 'check-circle' : 'circle', 19) +
+      '</button>' +
+      '<span class="dash-plan-task-icon">' + iconSvg(task.icon, 16) + '</span>' +
+      '<div class="dash-plan-task-copy"><strong>' + task.title + '</strong><small>' + task.detail + '</small></div>' +
+      '<button class="dash-task-open" data-action="dashboard-task-open" data-tab="' + task.tab + '"' + (task.subject ? ' data-subject="' + task.subject + '"' : '') + ' aria-label="Open ' + task.title + '">' + iconSvg('arrow-up-right', 15) + '</button>' +
+    '</article>';
+  }).join('');
+  const recommendationMarkup = recommendations.map(item =>
+    '<article class="dash-topic-card tone-' + item.tone + '">' +
+      '<div class="dash-topic-top"><span class="dash-topic-icon">' + iconSvg(item.icon, 18) + '</span><span>' + item.label + '</span></div>' +
+      '<h3>' + item.title + '</h3><p>' + item.detail + '</p>' +
+      '<button data-action="dashboard-open-practice" data-subject="' + item.subject + '">Explore subject ' + iconSvg('arrow-right', 13) + '</button>' +
     '</article>'
   ).join('');
-  return '<section class="page dashboard-page-v3">' +
+  const quickMarkup = quickLinks.map(item =>
+    '<button class="dash-quick-link" data-action="nav" data-tab="' + item.tab + '">' +
+      '<span class="dash-quick-icon">' + iconSvg(item.icon, 17) + '</span>' +
+      '<span class="dash-quick-copy"><strong>' + item.title + '</strong><small>' + item.detail + '</small></span>' +
+      iconSvg('arrow-right', 14) +
+    '</button>'
+  ).join('');
+  return '<section class="page dashboard-page-v4">' +
     '<header class="dash-heading">' +
-      '<div class="dash-heading-copy"><span class="dash-eyebrow">YOUR STUDY SPACE</span><h1>Good to see you, ' + esc(state.user.name.split(' ')[0]) + '.</h1><p>Small, consistent sessions make a big difference. What would you like to work on today?</p></div>' +
+      '<div class="dash-heading-copy"><span class="dash-eyebrow">YOUR STUDY SPACE</span><h1>Good to see you, ' + esc(firstName) + '.</h1><p>Make today count with one focused session at a time.</p></div>' +
       '<button class="dash-target-pill" data-action="exam-switch" title="Switch target exam"><span class="dash-target-icon">' + examIconSvg(examItem.id, 18) + '</span><span><small>YOUR TARGET EXAM</small><strong>' + esc(examItem.code) + '</strong></span><span class="dash-target-days">' + examItem.targetDays + ' days left</span>' + iconSvg('chevron-down', 13) + '</button>' +
     '</header>' +
-    '<section class="dash-focus-card">' +
-      '<div class="dash-focus-copy"><span class="dash-focus-kicker">' + iconSvg('sparkles', 13) + ' A GOOD PLACE TO START</span><h2>One focused session at a time.</h2><p>Build confidence with a timed mock, review your answers, and keep your preparation moving forward.</p>' +
-        '<div class="dash-focus-actions"><button class="btn btn-primary" data-action="resume-mock">' + iconSvg('play', 14) + ' Start a full mock</button><button class="btn btn-secondary" data-action="nav" data-tab="mocks">Browse all tests ' + iconSvg('arrow-right', 14) + '</button></div>' +
-      '</div>' +
-      '<aside class="dash-focus-aside"><span class="dash-aside-label">CURRENT PREPARATION TARGET</span><div class="dash-aside-exam">' + examIconSvg(examItem.id, 23) + '<strong>' + esc(examItem.code) + '</strong></div><div class="dash-aside-divider"></div><div class="dash-aside-bottom"><span><strong>' + examItem.targetDays + '</strong><small>days to target</small></span><span><strong>' + examItem.totalMocks + '</strong><small>mock tests listed</small></span></div></aside>' +
+    '<div class="dash-feed-grid">' +
+      '<section class="dash-continue-card"><div class="dash-feed-card-head"><span class="dash-feed-kicker">CONTINUE LEARNING</span><span class="dash-feed-chip">' + (lastTab ? 'LAST OPENED' : 'GET STARTED') + '</span></div>' +
+        '<div class="dash-continue-main"><span class="dash-continue-icon">' + iconSvg(continueItem.icon, 22) + '</span><div><h2>' + continueItem.title + '</h2><p>' + continueItem.description + '</p></div></div>' +
+        '<button class="dash-primary-link" data-action="continue-learning">' + continueItem.button + ' ' + iconSvg('arrow-right', 14) + '</button>' +
+      '</section>' +
+      '<section class="dash-plan-card"><div class="dash-feed-card-head"><div><span class="dash-feed-kicker">TODAY’S STUDY PLAN</span><small class="dash-plan-date">' + todayLabel + '</small></div><span class="dash-plan-progress">' + doneCount + '/' + tasks.length + ' done</span></div>' +
+        '<div class="dash-plan-progress-track"><span style="width:' + Math.round(doneCount / tasks.length * 100) + '%"></span></div>' +
+        '<div class="dash-plan-list">' + taskMarkup + '</div>' +
+        '<p class="dash-plan-footnote">Tick a task when you finish it. Your checklist resets each day.</p>' +
+      '</section>' +
+    '</div>' +
+    '<section class="dash-recommendations-v4"><div class="dash-section-heading"><div><h2>Recommended practice</h2><p>Useful topics to work on next</p></div><button class="dash-text-link" data-action="nav" data-tab="practice">All subjects ' + iconSvg('arrow-right', 14) + '</button></div>' +
+      '<div class="dash-topic-grid">' + recommendationMarkup + '</div>' +
     '</section>' +
-    '<section class="dash-stats-section"><div class="dash-section-heading"><div><h2>Your activity</h2><p>A quick snapshot of your preparation</p></div></div><div class="dash-stats-grid">' + metricsMarkup + '</div></section>' +
-    '<section class="dash-recommendations-section"><div class="dash-section-heading"><div><h2>Pick your next session</h2><p>Continue with a mock or focus on one subject</p></div><button class="dash-text-link" data-action="nav" data-tab="mocks">View test library ' + iconSvg('arrow-right', 14) + '</button></div><div class="dash-recommendations-grid">' + recommendationsMarkup + '</div></section>' +
-    '<section class="dash-shortcuts"><button class="dash-shortcut" data-action="nav" data-tab="pyq"><span>' + iconSvg('history', 17) + '</span><div><strong>Previous year papers</strong><small>Practice real exam questions</small></div>' + iconSvg('arrow-right', 14) + '</button><button class="dash-shortcut" data-action="nav" data-tab="practice"><span>' + iconSvg('book-open', 17) + '</span><div><strong>Chapter-wise practice</strong><small>Work on a specific topic</small></div>' + iconSvg('arrow-right', 14) + '</button></section>' +
+    '<section class="dash-quick-section"><div class="dash-section-heading"><div><h2>Quick access</h2><p>Jump straight to a study area</p></div></div><div class="dash-quick-grid">' + quickMarkup + '</div></section>' +
   '</section>';
 }
 function mocksPage() {
@@ -1467,7 +1513,7 @@ app.addEventListener('click', event => {
   const action = button.dataset.action;
   const id = button.dataset.id;
   switch (action) {
-    case 'nav': state.activeTab = button.dataset.tab; exam.profileOpen = false; exam.notificationsOpen = false; exam.examSwitchOpen = false; exam.mobileMoreOpen = false; render(); break;
+    case 'nav': state.activeTab = button.dataset.tab; if (['mocks', 'pyq', 'practice'].includes(button.dataset.tab)) state.lastStudyTab = button.dataset.tab; exam.profileOpen = false; exam.notificationsOpen = false; exam.examSwitchOpen = false; exam.mobileMoreOpen = false; render(); break;
     case 'toggle-drawer': document.body.classList.toggle('nav-open'); break;
     case 'mobile-more': exam.mobileMoreOpen = !exam.mobileMoreOpen; render(); break;
     case 'close-mobile-more': exam.mobileMoreOpen = false; render(); break;
@@ -1487,6 +1533,40 @@ app.addEventListener('click', event => {
     case 'wl-goto': { const target = document.getElementById(button.dataset.target); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } break;
     case 'wl-filter': exam.workspaceFilter = button.dataset.cat; render(); break;
     case 'scroll-welcome': $('.landing-features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); break;
+    case 'continue-learning': {
+      const destination = ['mocks', 'pyq', 'practice'].includes(state.lastStudyTab) ? state.lastStudyTab : 'practice';
+      state.activeTab = destination;
+      if (destination === 'practice') state.practiceSubject = state.practiceSubject || 'quant';
+      render();
+      break;
+    }
+    case 'dashboard-task-toggle': {
+      const taskId = button.dataset.task;
+      if (!['quant', 'ga', 'mock'].includes(taskId)) break;
+      const existing = Array.isArray(state.dailyPlan?.completed) ? state.dailyPlan.completed : [];
+      state.dailyPlan = { date: todayKey(), completed: existing.includes(taskId) ? existing.filter(item => item !== taskId) : [...existing, taskId] };
+      render();
+      break;
+    }
+    case 'dashboard-task-open': {
+      const tab = button.dataset.tab;
+      if (!['practice', 'mocks'].includes(tab)) break;
+      state.activeTab = tab;
+      if (button.dataset.subject) state.practiceSubject = button.dataset.subject;
+      if (tab === 'mocks') { state.mocksView = 'sectional'; state.sectionalSubject = 'all'; }
+      state.lastStudyTab = tab;
+      render();
+      break;
+    }
+    case 'dashboard-open-practice': {
+      const subject = PRACTICE_LIST.find(item => item.id === button.dataset.subject);
+      if (!subject) break;
+      state.practiceSubject = subject.id;
+      state.activeTab = 'practice';
+      state.lastStudyTab = 'practice';
+      render();
+      break;
+    }
     case 'resume-mock': startExam(`${currentExam().code} Tier-I Full Mock #08`); break;
     case 'start-recommendation': startExam(button.dataset.title, button.dataset.premium === 'true'); break;
     case 'start-mock': startExam(button.dataset.title, button.dataset.premium === 'true'); break;
