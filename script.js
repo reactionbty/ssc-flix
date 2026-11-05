@@ -443,7 +443,7 @@ function makeInitialQuestionState() {
 }
 function loadState() {
   const base = {
-    user: { ...DEFAULT_USER }, activeTab: 'landing', selectedExamId: 'cgl', lang: 'en', accentTheme: 'violet', themeMode: 'light', themePreferenceSet: false,
+    user: { ...DEFAULT_USER }, activeTab: 'landing', welcomeCompleted: false, selectedExamId: 'cgl', lang: 'en', accentTheme: 'violet', themeMode: 'light', themePreferenceSet: false,
     globalSearch: '', bookmarkedIds: ['r1', 'q2', 'e1', 'c2'], customNotes: {},
     userState: makeInitialQuestionState(), studyModeActive: false, showHintsMap: {}, billingCycle: 'annual', mocksView: 'full', sectionalSubject: 'all', pyqView: 'full', pyqYear: 'all', pyqSubject: 'all', practiceSubject: 'quant', bookmarksSubject: 'quant', customNotes: {}, myTestsView: 'attempted', leaderboardView: 'weekly',
     myTests: [
@@ -458,6 +458,7 @@ function loadState() {
     if (!saved) return { ...base, isNewVisit: true };
     return {
       ...base, ...saved, isNewVisit: false,
+      welcomeCompleted: saved.welcomeCompleted === undefined ? true : !!saved.welcomeCompleted,
       themeMode: saved.themePreferenceSet ? (saved.themeMode || 'light') : 'light',
       themePreferenceSet: !!saved.themePreferenceSet,
       user: (() => { const u = { ...base.user, ...(saved.user || {}) }; delete u.avatar; u.avatarType = u.avatarType === 'photo' && u.avatarImage ? 'photo' : 'monogram'; return u; })(),
@@ -597,7 +598,7 @@ const searchMatch = value => !state.globalSearch.trim() || String(value || '').t
 function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      user: state.user, activeTab: state.activeTab, selectedExamId: state.selectedExamId,
+      user: state.user, activeTab: state.activeTab, welcomeCompleted: state.welcomeCompleted, selectedExamId: state.selectedExamId,
       lang: state.lang, accentTheme: state.accentTheme, themeMode: state.themeMode, themePreferenceSet: state.themePreferenceSet, bookmarkedIds: state.bookmarkedIds,
       customNotes: state.customNotes, userState: state.userState, studyModeActive: state.studyModeActive,
       showHintsMap: state.showHintsMap, billingCycle: state.billingCycle,
@@ -969,6 +970,61 @@ function renderWelcome() {
     <footer class="welcome-footer"><span>© ${new Date().getFullYear()} SSC Flix</span><span>Independent exam-preparation demo · Not affiliated with the Staff Selection Commission.</span><button data-action="open-subscription">View Pro plans</button></footer>
   </div>`;
 }
+function renderFirstWelcome() {
+  const examGroups = [
+    { label: 'Graduate level', ids: ['cgl', 'cpo'] },
+    { label: '10+2 level', ids: ['chsl', 'mts', 'steno'] },
+    { label: 'Defence & police', ids: ['gd'] }
+  ];
+  const firstName = (state.user.name || 'aspirant').trim().split(/\\s+/)[0];
+  const examCards = examGroups.map(group => {
+    const cards = group.ids.map(id => {
+      const item = EXAM_CATEGORIES.find(examItem => examItem.id === id);
+      if (!item) return '';
+      const active = state.selectedExamId === item.id;
+      return `<button class="first-welcome-exam ${active ? 'active' : ''}" data-action="welcome-select-exam" data-exam="${item.id}" aria-pressed="${active}">
+        <span class="first-welcome-exam-icon">${examIconSvg(item.id, 20)}</span>
+        <span class="first-welcome-exam-copy"><strong>${esc(item.code)}</strong><small>${esc(item.name)}</small></span>
+        <span class="first-welcome-exam-check">${iconSvg(active ? 'check-circle' : 'circle', 16)}</span>
+      </button>`;
+    }).join('');
+    return `<section class="first-welcome-group"><h3>${group.label}</h3><div class="first-welcome-exam-grid">${cards}</div></section>`;
+  }).join('');
+  return `<div class="first-welcome-page">
+    <header class="first-welcome-header">
+      <button class="welcome-brand" data-action="wl-goto" data-target="first-welcome-top"><span class="welcome-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
+      <div class="first-welcome-header-actions">
+        <span class="first-welcome-header-label">YOUR FIRST VISIT</span>
+        <button class="welcome-nav-control" data-action="toggle-mode" title="${state.themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}">${iconSvg(state.themeMode === 'light' ? 'moon' : 'sun', 15)}</button>
+      </div>
+    </header>
+    <main class="first-welcome-main" id="first-welcome-top">
+      <section class="first-welcome-intro">
+        <span class="first-welcome-kicker"><span></span> YOUR PREPARATION STARTS HERE</span>
+        <h1>Welcome to SSC Flix, ${esc(firstName)}.</h1>
+        <p>Let’s set up your study space. Choose your target exam and preferred language. You can change both later in Preferences.</p>
+      </section>
+      <section class="first-welcome-setup">
+        <div class="first-welcome-step-head"><span>01</span><div><h2>Which exam are you preparing for?</h2><p>Your selection personalises the exam workspace.</p></div></div>
+        <div class="first-welcome-groups">${examCards}</div>
+      </section>
+      <section class="first-welcome-language">
+        <div class="first-welcome-step-head"><span>02</span><div><h2>Choose your language</h2><p>Choose the default language for questions and study content.</p></div></div>
+        <div class="first-welcome-language-options">
+          <button class="first-welcome-language-option ${state.lang === 'en' ? 'active' : ''}" data-action="welcome-language" data-lang="en" aria-pressed="${state.lang === 'en'}"><strong>English</strong><small>Use English by default</small>${iconSvg(state.lang === 'en' ? 'check-circle' : 'circle', 17)}</button>
+          <button class="first-welcome-language-option ${state.lang === 'hi' ? 'active' : ''}" data-action="welcome-language" data-lang="hi" aria-pressed="${state.lang === 'hi'}"><strong>हिन्दी</strong><small>डिफ़ॉल्ट भाषा हिन्दी रखें</small>${iconSvg(state.lang === 'hi' ? 'check-circle' : 'circle', 17)}</button>
+        </div>
+      </section>
+      <section class="first-welcome-bottom">
+        <div><strong>All set?</strong><small>Your choices are saved on this device. You can update them anytime.</small></div>
+        <button class="btn btn-primary" data-action="welcome-complete">${iconSvg('arrow-right', 15)} Enter my study space</button>
+      </section>
+      <button class="first-welcome-skip" data-action="welcome-complete">Skip for now</button>
+    </main>
+    <footer class="first-welcome-footer"><span>SSC Flix</span><span>Independent exam-preparation workspace · Not affiliated with the Staff Selection Commission.</span></footer>
+  </div>`;
+}
+
 function dashboardPage() {
   const examItem = currentExam();
   const metrics = [
@@ -1704,6 +1760,7 @@ function render() {
   setTheme(state.accentTheme);
   persist();
   if (exam.active) renderExam();
+  else if (!state.welcomeCompleted && state.user.isLoggedIn) app.innerHTML = renderFirstWelcome() + renderModal();
   else if (state.activeTab === 'landing') renderWelcome();
   else renderApp();
 }
@@ -1720,6 +1777,29 @@ app.addEventListener('click', event => {
     case 'mobile-more': exam.mobileMoreOpen = !exam.mobileMoreOpen; render(); break;
     case 'close-mobile-more': exam.mobileMoreOpen = false; render(); break;
     case 'close-drawer': document.body.classList.remove('nav-open'); break;
+    case 'welcome-select-exam': {
+      const target = EXAM_CATEGORIES.find(item => item.id === button.dataset.exam);
+      if (!target) break;
+      state.selectedExamId = target.id;
+      persist();
+      render();
+      break;
+    }
+    case 'welcome-language': {
+      if (!['en', 'hi'].includes(button.dataset.lang)) break;
+      state.lang = button.dataset.lang;
+      persist();
+      render();
+      break;
+    }
+    case 'welcome-complete': {
+      state.welcomeCompleted = true;
+      state.activeTab = 'dashboard';
+      persist();
+      render();
+      showToast('Your study space is ready', iconSvg('check-circle', 14));
+      break;
+    }
     case 'choose-exam': setTargetExam(button.dataset.exam, true); break;
     case 'exam-switch': exam.examSwitchOpen = !exam.examSwitchOpen; exam.profileOpen = false; exam.notificationsOpen = false; render(); break;
     case 'exam-switch-select': setTargetExam(button.dataset.exam); break;
@@ -1868,6 +1948,7 @@ app.addEventListener('submit', event => {
   const aspirantState = String(form.get('state') || '').trim();
   if (mode === 'signup') state.user = { ...state.user, isLoggedIn: true, email, name: name || state.user.name || 'SSC Aspirant', state: aspirantState || state.user.state || '' };
   else state.user = { ...state.user, isLoggedIn: true, email };
+  if (mode === 'signup') state.welcomeCompleted = false;
   exam.activeModal = '';
   if (state.activeTab === 'landing') state.activeTab = 'dashboard';
   persist();
