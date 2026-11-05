@@ -6226,3 +6226,286 @@ body:not(.light) .welcome2-preview{box-shadow:0 22px 65px rgba(0,0,0,.22)}
  .welcome2-footer{gap:8px}
 }
 @media(prefers-reduced-motion:reduce){.welcome2-exam-card{transition:none}}
+
+
+
+/* MOBILE READABILITY PASS — site-wide text, controls and icon sizing */
+@media (max-width: 767px) {
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body { font-size: 15px; line-height: 1.55; }
+
+  /* Readable defaults for supporting copy, form labels and controls. */
+  p, li, label, summary, figcaption, small {
+    font-size: max(12px, .86em) !important;
+    line-height: 1.5;
+  }
+  button, input, select, textarea {
+    font-size: max(13px, .9em) !important;
+  }
+  button:not(.mobile-brand):not(.welcome2-brand):not(.welcome-brand):not(.brand) {
+    min-height: 40px;
+  }
+  input, select, textarea { min-height: 42px; }
+  .btn { min-height: 42px; padding-top: 9px; padding-bottom: 9px; }
+
+  /* Labels, badges, tags and meta rows should remain legible without zoom. */
+  [class*="eyebrow"], [class*="kicker"], [class*="badge"],
+  [class*="tag"], [class*="count"], [class*="label"] {
+    font-size: max(11px, .82em) !important;
+    line-height: 1.35;
+  }
+  [class*="meta"] { font-size: max(12px, .86em) !important; }
+  [class*="meta"] span, [class*="meta"] small {
+    font-size: max(12px, .86em) !important;
+    line-height: 1.4;
+  }
+  [class*="footnote"], [class*="hint"], [class*="note"],
+  [class*="description"], [class*="subtitle"] {
+    font-size: max(12px, .88em) !important;
+    line-height: 1.55;
+  }
+
+  /* Content icons: more visible, with exceptions for compact inline metadata. */
+  svg.icon-svg { width: 18px !important; height: 18px !important; }
+  .library-test-meta svg, .chapter-copy small svg,
+  .practice-progress svg, .result-section-counts svg {
+    width: 15px !important; height: 15px !important;
+  }
+  .dash-stat-icon svg, .dash-recommend-icon svg,
+  .dash-shortcut > span svg, .settings-card-icon svg,
+  .library-test-icon svg, .chapter-index svg,
+  .my-test-icon svg, .my-test-icon .icon-svg,
+  .saved-empty-state > span svg {
+    width: 19px !important; height: 19px !important;
+  }
+
+  /* App navigation and global header. */
+  .nav-btn { min-height: 44px; font-size: 13px !important; }
+  .nav-badge, .nav-count { font-size: 11px !important; }
+  .topbar .exam-pill-text strong { font-size: 12px !important; }
+  .topbar .search-input { min-height: 42px; font-size: 13px !important; }
+  .topbar .lang-btn { font-size: 11px !important; }
+  .topbar .icon-btn svg, .topbar .profile-btn svg { width: 19px !important; height: 19px !important; }
+  .profile-menu .menu-head strong { font-size: 14px; }
+  .profile-menu .menu-head small { font-size: 12px !important; }
+  .menu-item { min-height: 42px; font-size: 13px !important; }
+  .notification-menu h4 { font-size: 14px; }
+  .notification-item { font-size: 12px !important; }
+  .mobile-nav-item { min-height: 52px; font-size: 10.5px !important; }
+  .mobile-nav-icon { width: 25px; height: 25px; }
+  .mobile-nav-icon svg { width: 21px !important; height: 21px !important; }
+  .mobile-more-head strong { font-size: 15px; }
+  .mobile-more-head small { font-size: 12px !important; }
+  .mobile-more-link { min-height: 46px; font-size: 12px !important; }
+  .mobile-more-icon svg { width: 19px !important; height: 19px !important; }
+  .mobile-more-count { font-size: 11px !important; }
+
+  /* Page titles and section headings. */
+  .page-heading h2 { font-size: 22px; }
+  .page-heading p { font-size: 13px !important; }
+  .library-page-intro h1, .saved-page-head h1 { font-size: 25px; }
+  .library-page-intro p, .saved-page-head p { font-size: 13px !important; }
+  .library-results-heading strong, .saved-list-heading strong,
+  .leaderboard-list-head strong, .practice-list-heading strong { font-size: 13px; }
+  .library-results-heading span, .saved-list-heading span,
+  .leaderboard-list-head span, .practice-list-heading span { font-size: 12px !important; }
+
+  /* Dashboard. */
+  .dash-eyebrow, .dash-focus-kicker, .dash-aside-label,
+  .dash-stat-top, .dash-recommend-copy > span { font-size: 11px !important; }
+  .dash-heading p, .dash-focus-copy p { font-size: 13px !important; line-height: 1.6; }
+  .dash-target-pill small, .dash-target-days,
+  .dash-aside-bottom small, .dash-stat > small,
+  .dash-recommend-copy small, .dash-shortcut small { font-size: 12px !important; }
+  .dash-target-pill strong, .dash-shortcut strong { font-size: 13px; }
+  .dash-section-heading h2 { font-size: 16px; }
+  .dash-section-heading p, .dash-text-link { font-size: 12px !important; }
+  .dash-stat { padding: 11px 10px; }
+  .dash-stat > strong { font-size: 19px; }
+  .dash-stat-icon { width: 28px; height: 28px; flex-basis: 28px; }
+  .dash-recommend-card { grid-template-columns: 36px minmax(0,1fr) 34px; gap: 10px; padding: 12px; }
+  .dash-recommend-icon { width: 36px; height: 36px; }
+  .dash-recommend-copy h3 { font-size: 13px; line-height: 1.4; }
+  .dash-recommend-copy p { font-size: 12px !important; line-height: 1.5; }
+  .dash-recommend-action { width: 34px; height: 34px; }
+  .dash-shortcut { min-height: 52px; padding: 11px; }
+  .dash-shortcut > span { width: 36px; height: 36px; flex-basis: 36px; }
+
+  /* Mock Tests, PYQs and Chapter Practice. */
+  .library-test-title-row h3, .mock-card-heading h3,
+  .pyq-card-heading h3, .my-test-title-row h3,
+  .chapter-copy h3 { font-size: 13px !important; line-height: 1.4; }
+  .library-test-meta, .mock-library-card .library-test-meta,
+  .pyq-library-card .library-test-meta { font-size: 12px !important; gap: 7px 9px; }
+  .library-test-meta span, .mock-library-card .library-test-meta span,
+  .pyq-library-card .library-test-meta span { font-size: 12px !important; }
+  .library-tag, .mock-card-badges .library-tag,
+  .pyq-card-heading .library-tag { font-size: 10.5px !important; min-height: 21px; padding: 4px 7px; }
+  .mock-library-card .library-last-score small,
+  .pyq-library-card .library-last-score small,
+  .library-last-score small, .my-test-score small { font-size: 10.5px !important; }
+  .mock-library-card .library-last-score strong,
+  .pyq-library-card .library-last-score strong,
+  .library-last-score strong, .my-test-score strong { font-size: 12px !important; }
+  .mock-library-card .library-test-side .btn,
+  .pyq-library-card .library-test-side .btn,
+  .chapter-test-card-v2 .chapter-start-button {
+    min-height: 40px; font-size: 12px !important; padding: 8px 7px;
+  }
+  .chapter-test-card-v2 .chapter-copy > span,
+  .chapter-test-card-v2 .chapter-copy > small,
+  .chapter-copy > span, .chapter-copy small { font-size: 11.5px !important; line-height: 1.4; }
+  .chapter-test-card-v2 .chapter-index { width: 34px; height: 34px; font-size: 11px !important; }
+
+  /* Saved questions, My Tests, leaderboard and settings. */
+  .saved-question-label, .saved-total span,
+  .saved-answer > span, .my-tests-summary span,
+  .leader-podium-card > small, .leaderboard-person small,
+  .leaderboard-note, .settings-field-label, .settings-option-row small,
+  .settings-hint, .settings-card-heading p { font-size: 11.5px !important; }
+  .saved-question-text { font-size: 14px !important; line-height: 1.65; }
+  .saved-answer strong, .settings-option-row strong { font-size: 13px; }
+  .saved-answer p { font-size: 12px !important; }
+  .saved-question-actions .btn, .settings-action-row .btn,
+  .settings-mode-button, .settings-card .theme-chip { min-height: 40px; font-size: 12px !important; }
+  .my-test-copy p { font-size: 12px !important; }
+  .leader-podium-card > strong, .leaderboard-person strong { font-size: 12px; }
+  .leader-podium-card > b { font-size: 14px; }
+  .settings-card-heading h2 { font-size: 15px; }
+  .settings-card .field { min-height: 44px; font-size: 14px !important; }
+
+  /* First-time setup and public Welcome page. */
+  .first-welcome-header-label, .first-welcome-kicker,
+  .first-welcome-group h3, .first-welcome-exam-copy small,
+  .first-welcome-language-option small, .first-welcome-bottom small,
+  .first-welcome-skip, .first-welcome-footer { font-size: 11.5px !important; }
+  .first-welcome-intro p, .first-welcome-step-head p { font-size: 13px !important; }
+  .first-welcome-step-head h2 { font-size: 15px; }
+  .first-welcome-exam-copy strong, .first-welcome-language-option strong { font-size: 13px; }
+  .first-welcome-exam { min-height: 60px; }
+  .first-welcome-language-option { min-height: 60px; }
+  .first-welcome-bottom strong { font-size: 13px; }
+  .first-welcome-bottom .btn { min-height: 46px; font-size: 13px !important; }
+
+  .welcome2-eyebrow, .welcome2-section-kicker,
+  .welcome2-preview-kicker, .welcome2-preview-chip,
+  .welcome2-selected-tag, .welcome2-exam-tier { font-size: 11px !important; }
+  .welcome2-hero-description { font-size: 14px !important; line-height: 1.7; }
+  .welcome2-proof-row span { font-size: 11.5px !important; }
+  .welcome2-proof-row svg { width: 17px !important; height: 17px !important; }
+  .welcome2-nav button, .welcome2-icon-control,
+  .welcome2-signin, .welcome2-secondary-cta { font-size: 12px !important; }
+  .welcome2-icon-control { min-width: 40px; min-height: 40px; }
+  .welcome2-signin { min-height: 40px; }
+  .welcome2-preview-top strong { font-size: 15px; }
+  .welcome2-preview-target small, .welcome2-preview-list small,
+  .welcome2-preview-footnote { font-size: 11.5px !important; }
+  .welcome2-preview-target strong { font-size: 14px; }
+  .welcome2-preview-list strong { font-size: 13px; }
+  .welcome2-preview-list > div { padding: 14px 2px; }
+  .welcome2-exam-name h3 { font-size: 15px; }
+  .welcome2-exam-name p { min-height: 0; font-size: 12px !important; line-height: 1.5; }
+  .welcome2-exam-meta span { font-size: 11px !important; }
+  .welcome2-exam-action { min-height: 40px; font-size: 12px !important; }
+  .welcome2-filter { min-height: 38px; padding: 7px 12px; font-size: 11.5px !important; }
+  .welcome2-feature-card h3 { font-size: 13px; }
+  .welcome2-feature-card p { font-size: 12px !important; line-height: 1.55; }
+  .welcome2-feature-icon { width: 40px; height: 40px; }
+  .welcome2-bottom h2 { font-size: 18px; }
+  .welcome2-bottom p, .welcome2-footer p, .welcome2-footer > button { font-size: 11.5px !important; }
+  .welcome2-bottom .btn { min-height: 44px; font-size: 13px !important; }
+
+  /* Exam instructions. */
+  .exam-v4 .gate-welcome-copy .gate-kicker,
+  .exam-v4 .gate-v2-eyebrow, .exam-v4 .gate-question-count,
+  .exam-v4 .gate-v2-exam-pill, .exam-v4 .gate-rule-count { font-size: 11px !important; }
+  .exam-v4 .gate-welcome-copy p { font-size: 13px !important; }
+  .exam-v4 .gate-v2-section-heading h3 { font-size: 15px; }
+  .exam-v4 .gate-fact-v2 span { font-size: 12px !important; }
+  .exam-v4 .gate-fact-v2 strong { font-size: 14px; }
+  .exam-v4 .gate-legend-item-v2 > span:last-child { font-size: 12px !important; }
+  .exam-v4 .gate-legend-item-v2 .legend-number { width: 27px; height: 27px; flex-basis: 27px; font-size: 11px; }
+  .exam-v4 .gate-rule-text { font-size: 13px !important; line-height: 1.65; }
+  .exam-v4 .gate-accept-v2 small { font-size: 12px !important; }
+  .exam-v4 .gate-accept-v2 strong { font-size: 13px; }
+  .exam-v4 .gate-actions-v2 .btn { min-height: 44px; font-size: 12px !important; }
+
+  /* Live CBT. Keep the exam compact, but make every instruction/action legible. */
+  .exam-v4.exam-live-shell .exam-brand h1 { font-size: 12px !important; }
+  .exam-v4.exam-live-shell .exam-brand p { font-size: 11px !important; }
+  .exam-v4.exam-live-shell .timer-box small { font-size: 10px !important; }
+  .exam-v4.exam-live-shell .timer-box strong { font-size: 14px !important; }
+  .exam-v4.exam-live-shell .timer-box > span { font-size: 18px !important; }
+  .exam-v4.exam-live-shell .exam-header-actions .lang-btn { min-height: 40px; font-size: 11px !important; }
+  .exam-v4.exam-live-shell .exam-tab { min-height: 40px; font-size: 11px !important; }
+  .exam-v4.exam-live-shell .exam-tab small { font-size: 10.5px !important; }
+  .exam-v4.exam-live-shell .question-title-row strong { font-size: 13px; }
+  .exam-v4.exam-live-shell .question-position { font-size: 11px !important; }
+  .exam-v4.exam-live-shell .question-heading .marks { font-size: 11.5px !important; }
+  .exam-v4.exam-live-shell .heading-actions .btn { min-height: 36px; font-size: 11px !important; }
+  .exam-v4.exam-live-shell .question-panel { font-size: 15px !important; line-height: 1.65; }
+  .exam-v4.exam-live-shell .options-label { font-size: 11.5px !important; }
+  .exam-v4.exam-live-shell .options-list > .option-btn { min-height: 54px; font-size: 14px !important; line-height: 1.5; }
+  .exam-v4.exam-live-shell .option-letter { width: 30px; height: 30px; flex-basis: 30px; font-size: 12px !important; }
+  .exam-v4.exam-live-shell .solution-info { font-size: 12px !important; line-height: 1.6; }
+  .exam-v4.exam-live-shell .exam-actions .btn { min-height: 44px; font-size: 11.5px !important; }
+  .exam-v4.exam-live-shell .legend-item { font-size: 11.5px !important; }
+  .exam-v4.exam-live-shell .legend-number { width: 25px; height: 25px; flex-basis: 25px; font-size: 11px !important; }
+  .exam-v4.exam-live-shell .palette-head strong { font-size: 12px; }
+  .exam-v4.exam-live-shell .small-select { min-height: 40px; font-size: 12px !important; }
+  .exam-v4.exam-live-shell .palette-btn { min-height: 40px; font-size: 12px !important; }
+  .exam-v4.exam-live-shell .palette-footer .btn { min-height: 44px; font-size: 11.5px !important; }
+
+  /* Exit/submit dialogs. */
+  .exam-confirm-eyebrow { font-size: 11px !important; }
+  .exam-confirm-heading h3 { font-size: 18px; }
+  .exam-confirm-heading p { font-size: 13px !important; }
+  .exam-confirm-progress-copy > strong { font-size: 14px; }
+  .exam-confirm-progress-copy > span,
+  .exam-confirm-progress-copy > small { font-size: 12px !important; }
+  .exam-confirm-stat span { font-size: 12px !important; }
+  .exam-confirm-stat strong { font-size: 15px; }
+  .exam-confirm-note { font-size: 12px !important; line-height: 1.55; }
+  .exam-confirm-actions .btn { min-height: 46px; font-size: 12px !important; }
+
+  /* Score report. */
+  .result-eyebrow, .result-demo-tag { font-size: 10.5px !important; }
+  .result-page-title p, .result-score-caption,
+  .result-overview-verdict small, .result-metric > small,
+  .result-muted-count, .result-marks-equation span:not(.result-equation-sign),
+  .result-section-title > span, .result-section-counts > span,
+  .result-insight small, .result-next-steps p,
+  .result-page-footer > span, .result-sample-note,
+  .result-candidate small, .result-candidate-tests, .result-footnote,
+  .result-solution-status, .result-solution-answer > small,
+  .result-solution-answer p { font-size: 12px !important; }
+  .result-metric > span { font-size: 11px !important; }
+  .result-metric > strong { font-size: 21px; }
+  .result-section-title strong, .result-insight strong { font-size: 13px; }
+  .result-insight > span { font-size: 10.5px !important; }
+  .result-solution-question { font-size: 14px !important; }
+  .result-solution-answer > strong { font-size: 12px; }
+  .result-filter { min-height: 38px; font-size: 12px !important; }
+  .result-page-actions .btn, .result-page-footer .btn,
+  .result-next-steps .btn { min-height: 42px; font-size: 12px !important; }
+
+  /* Popups, notifications, and small utility panels. */
+  .modal-close, .exam-confirm-close { width: 38px; height: 38px; }
+  .form-stack label, .settings-card .field-label { font-size: 12px !important; }
+  .field, .small-select, .note-input, .select-exam { min-height: 42px; font-size: 14px !important; }
+}
+@media (max-width: 390px) {
+  /* Avoid forcing wide card rows on the narrowest phones. */
+  .dash-stat-top { font-size: 10.5px !important; }
+  .dash-stat > small { font-size: 11px !important; }
+  .mock-library-card .library-test-meta,
+  .pyq-library-card .library-test-meta { font-size: 11px !important; }
+  .mock-library-card .library-test-meta span,
+  .pyq-library-card .library-test-meta span { font-size: 11px !important; }
+  .mock-library-card .library-test-side .btn,
+  .pyq-library-card .library-test-side .btn { font-size: 11px !important; }
+  .exam-v4.exam-live-shell .exam-header-actions .lang-btn { font-size: 10px !important; }
+  .exam-v4.exam-live-shell .heading-actions .btn { font-size: 10px !important; }
+  .exam-v4.exam-live-shell .exam-actions .btn { font-size: 10.5px !important; }
+  .welcome2-exam-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
