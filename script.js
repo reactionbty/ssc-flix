@@ -447,7 +447,7 @@ function makeInitialQuestionState() {
 }
 function loadState() {
   const base = {
-    user: { ...DEFAULT_USER }, activeTab: 'landing', welcomeCompleted: false, selectedExamId: 'cgl', lang: 'en', accentTheme: 'violet', themeMode: 'light', themePreferenceSet: false,
+    user: { ...DEFAULT_USER }, activeTab: 'landing', onboardingStarted: false, welcomeCompleted: false, selectedExamId: 'cgl', lang: 'en', accentTheme: 'violet', themeMode: 'light', themePreferenceSet: false,
     globalSearch: '', bookmarkedIds: ['r1', 'q2', 'e1', 'c2'], customNotes: {},
     userState: makeInitialQuestionState(), studyModeActive: false, showHintsMap: {}, billingCycle: 'annual', mocksView: 'full', sectionalSubject: 'all', pyqView: 'full', pyqYear: 'all', pyqSubject: 'all', practiceSubject: 'quant', bookmarksSubject: 'quant', customNotes: {}, myTestsView: 'attempted', leaderboardView: 'weekly',
     myTests: [
@@ -602,7 +602,7 @@ const searchMatch = value => !state.globalSearch.trim() || String(value || '').t
 function persist() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      user: state.user, activeTab: state.activeTab, welcomeCompleted: state.welcomeCompleted, selectedExamId: state.selectedExamId,
+      user: state.user, activeTab: state.activeTab, onboardingStarted: state.onboardingStarted, welcomeCompleted: state.welcomeCompleted, selectedExamId: state.selectedExamId,
       lang: state.lang, accentTheme: state.accentTheme, themeMode: state.themeMode, themePreferenceSet: state.themePreferenceSet, bookmarkedIds: state.bookmarkedIds,
       customNotes: state.customNotes, userState: state.userState, studyModeActive: state.studyModeActive,
       showHintsMap: state.showHintsMap, billingCycle: state.billingCycle,
@@ -1810,7 +1810,7 @@ function render() {
   setTheme(state.accentTheme);
   persist();
   if (exam.active) renderExam();
-  else if (!state.welcomeCompleted && state.user.isLoggedIn) app.innerHTML = renderFirstWelcome() + renderModal();
+  else if (state.activeTab === 'landing' && !state.welcomeCompleted) app.innerHTML = (state.onboardingStarted ? renderFirstWelcome() : renderWelcome()) + renderModal();
   else if (state.activeTab === 'landing') app.innerHTML = renderWelcome() + renderModal();
   else renderApp();
 }
@@ -1854,6 +1854,7 @@ app.addEventListener('click', event => {
       break;
     }
     case 'welcome-complete': {
+      state.onboardingStarted = false;
       state.welcomeCompleted = true;
       state.activeTab = 'dashboard';
       persist();
@@ -1861,7 +1862,15 @@ app.addEventListener('click', event => {
       showToast('Your study space is ready', iconSvg('check-circle', 14));
       break;
     }
-    case 'choose-exam': setTargetExam(button.dataset.exam, true); break;
+    case 'choose-exam': {
+      const target = EXAM_CATEGORIES.find(item => item.id === button.dataset.exam);
+      if (!target) break;
+      state.selectedExamId = target.id;
+      state.onboardingStarted = true;
+      persist();
+      render();
+      break;
+    }
     case 'exam-switch': exam.examSwitchOpen = !exam.examSwitchOpen; exam.profileOpen = false; exam.notificationsOpen = false; render(); break;
     case 'exam-switch-select': setTargetExam(button.dataset.exam); break;
     case 'toggle-language': state.lang = isHindi() ? 'en' : 'hi'; render(); break;
@@ -1873,7 +1882,11 @@ app.addEventListener('click', event => {
     case 'open-auth': exam.activeModal = 'auth'; exam.authMode = button.dataset.mode || 'login'; render(); break;
     case 'close-modal': exam.activeModal = ''; exam.processingPayment = false; render(); break;
     case 'logout': state.user.isLoggedIn = false; exam.profileOpen = false; state.activeTab = 'landing'; render(); break;
-    case 'start-free': startExam(`${currentExam().code} Free Diagnostic Mock`); break;
+    case 'start-free': {
+      if (!state.welcomeCompleted) { state.onboardingStarted = true; render(); }
+      else startExam(`${currentExam().code} Free Diagnostic Mock`);
+      break;
+    }
     case 'wl-goto': { const target = document.getElementById(button.dataset.target); if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } break;
     case 'wl-filter': exam.workspaceFilter = button.dataset.cat; render(); break;
     case 'scroll-welcome': $('.landing-features')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); break;
