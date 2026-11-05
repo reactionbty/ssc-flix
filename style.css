@@ -6044,3 +6044,22 @@ body.light .first-welcome-page { background: radial-gradient(ellipse at 82% 0%, 
   .first-welcome-language-options { grid-template-columns: minmax(0, 1fr); }
   .first-welcome-step-head h2 { font-size: 12px; }
 }
+
+
+/* Logo always returns to the public Welcome page */
+button.brand {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+button.brand:focus-visible,
+.mobile-brand:focus-visible,
+.welcome-brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
