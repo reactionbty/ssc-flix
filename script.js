@@ -1,3 +1,7 @@
+if (window.__SSC_FLIX_BOOT) {
+  window.__SSC_FLIX_BOOT.scriptStarted = true;
+  window.__SSC_FLIX_BOOT.stage = 'script-started';
+}
 /*
  * SSC Flix — vanilla JavaScript edition
  * Converted from the supplied React/TSX source.
@@ -1975,5 +1979,22 @@ document.addEventListener('click', event => {
   if (!exam.active && !exam.activeModal) render();
 });
 
-setTheme(state.accentTheme);
-render();
+try {
+  if (window.__SSC_FLIX_BOOT) window.__SSC_FLIX_BOOT.stage = 'initial-render';
+  setTheme(state.accentTheme);
+  render();
+  if (window.__SSC_FLIX_BOOT) {
+    window.__SSC_FLIX_BOOT.rendered = true;
+    window.__SSC_FLIX_BOOT.stage = 'ready';
+  }
+} catch (startupError) {
+  console.error('SSC Flix startup failed:', startupError);
+  if (window.__SSC_FLIX_BOOT) {
+    window.__SSC_FLIX_BOOT.error = startupError && startupError.message ? startupError.message : String(startupError);
+    window.__SSC_FLIX_BOOT.stage = 'render-error';
+  }
+  const root = document.getElementById('app');
+  if (root) root.innerHTML = '<main class="app-boot-error"><h1>SSC Flix startup error</h1><p>' +
+    String(startupError && startupError.message || startupError || 'Unknown error') +
+    '</p><button type="button" onclick="window.location.reload()">Reload website</button></main>';
+}
