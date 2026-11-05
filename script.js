@@ -1765,7 +1765,7 @@ function render() {
   persist();
   if (exam.active) renderExam();
   else if (!state.welcomeCompleted && state.user.isLoggedIn) app.innerHTML = renderFirstWelcome() + renderModal();
-  else if (state.activeTab === 'landing') renderWelcome();
+  else if (state.activeTab === 'landing') app.innerHTML = renderWelcome() + renderModal();
   else renderApp();
 }
 
