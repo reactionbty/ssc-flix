@@ -839,7 +839,7 @@ function renderNav() {
 function renderSidebar() {
   return `<aside class="sidebar">
     <div>
-      <div class="brand" data-action="nav" data-tab="landing"><div class="brand-mark">PRO</div><div><h1>SSC FLIX</h1><p>ULTRA CBT EXAM PORTAL</p></div></div>
+      <button type="button" class="brand" data-action="home-welcome" aria-label="Go to Welcome page"><div class="brand-mark">PRO</div><div><h1>SSC FLIX</h1><p>ULTRA CBT EXAM PORTAL</p></div></button>
       <nav class="nav">${renderNav()}</nav>
     </div>
     <div class="sidebar-bottom">
@@ -860,7 +860,7 @@ function renderHeader() {
   return `<header class="topbar">
     <div class="top-left">
       <button class="hamburger" data-action="toggle-drawer" aria-label="Open navigation menu" title="Open menu">${iconSvg('menu', 18)}</button>
-      <button class="mobile-brand" data-action="nav" data-tab="dashboard" aria-label="SSC Flix home">
+      <button class="mobile-brand" data-action="home-welcome" aria-label="Open Welcome page">
         <span class="mobile-brand-mark">SF</span><span>SSC Flix</span>
       </button>
       <button class="exam-pill${exam.examSwitchOpen ? ' open' : ''}" data-action="exam-switch" title="Switch target exam">
@@ -932,7 +932,7 @@ function renderWelcome() {
   return `<div class="welcome-v4">
     <div class="welcome-announcement"><span>SSC FLIX</span><p>A focused workspace for your SSC preparation</p><span class="welcome-announcement-note">DEMO PORTAL</span></div>
     <header class="welcome-nav">
-      <button class="welcome-brand" data-action="wl-goto" data-target="welcome-top"><span class="welcome-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
+      <button class="welcome-brand" data-action="home-welcome" aria-label="Open Welcome page"><span class="welcome-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
       <div class="welcome-nav-actions">
         <button class="welcome-nav-control" data-action="toggle-language" title="Switch language">${iconSvg('globe', 15)} <span>${isHindi() ? 'HI' : 'EN'}</span></button>
         <button class="welcome-nav-control" data-action="toggle-mode" title="${state.themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}">${iconSvg(state.themeMode === 'light' ? 'moon' : 'sun', 15)}</button>
@@ -992,7 +992,7 @@ function renderFirstWelcome() {
   }).join('');
   return `<div class="first-welcome-page">
     <header class="first-welcome-header">
-      <button class="welcome-brand" data-action="wl-goto" data-target="first-welcome-top"><span class="welcome-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
+      <button class="welcome-brand" data-action="home-welcome" aria-label="Open Welcome page"><span class="welcome-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
       <div class="first-welcome-header-actions">
         <span class="first-welcome-header-label">YOUR FIRST VISIT</span>
         <button class="welcome-nav-control" data-action="toggle-mode" title="${state.themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}">${iconSvg(state.themeMode === 'light' ? 'moon' : 'sun', 15)}</button>
@@ -1772,6 +1772,17 @@ app.addEventListener('click', event => {
   const action = button.dataset.action;
   const id = button.dataset.id;
   switch (action) {
+    case 'home-welcome': {
+      state.welcomeCompleted = true;
+      state.activeTab = 'landing';
+      exam.profileOpen = false;
+      exam.notificationsOpen = false;
+      exam.examSwitchOpen = false;
+      exam.mobileMoreOpen = false;
+      document.body.classList.remove('nav-open');
+      render();
+      break;
+    }
     case 'nav': state.activeTab = button.dataset.tab; exam.profileOpen = false; exam.notificationsOpen = false; exam.examSwitchOpen = false; exam.mobileMoreOpen = false; render(); break;
     case 'toggle-drawer': document.body.classList.toggle('nav-open'); break;
     case 'mobile-more': exam.mobileMoreOpen = !exam.mobileMoreOpen; render(); break;
