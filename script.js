@@ -918,70 +918,59 @@ function renderExamSwitcher() {
   </div>`;
 }
 function renderWelcome() {
-  return `<div class="welcome8-page">
-    <header class="welcome8-header">
-      <div class="welcome8-header-inner">
-        <button class="welcome8-brand" data-action="home-welcome" aria-label="SSC Flix home"><span class="welcome8-logo">SF</span><span>SSC Flix</span></button>
-        <nav class="welcome8-nav"><button data-action="wl-goto" data-target="welcome8-platform">Platform</button><button data-action="wl-goto" data-target="welcome8-setup">Getting started</button></nav>
-        <div class="welcome8-tools">
-          <button class="welcome8-language" data-action="toggle-language" aria-label="Switch language">${iconSvg('globe',15)} <span>${isHindi()?'HI':'EN'}</span></button>
-          <button class="welcome8-theme" data-action="toggle-mode" aria-label="Toggle colour theme">${iconSvg(state.themeMode==='light'?'moon':'sun',16)}</button>
-          <button class="welcome8-login" data-action="open-auth" data-mode="login">Sign in</button>
+  return `<div class="welcome9-page">
+    <header class="welcome9-header">
+      <div class="welcome9-header-inner">
+        <button class="welcome9-brand" data-action="home-welcome" aria-label="SSC Flix home"><span class="welcome9-mark">SF</span><span>SSC Flix</span></button>
+        <nav class="welcome9-nav"><button data-action="wl-goto" data-target="welcome9-tools">What you can do</button><button data-action="wl-goto" data-target="welcome9-start">Getting started</button></nav>
+        <div class="welcome9-actions">
+          <button class="welcome9-language" data-action="toggle-language" aria-label="Switch language">${iconSvg('globe',15)} ${isHindi()?'HI':'EN'}</button>
+          <button class="welcome9-theme" data-action="toggle-mode" aria-label="Toggle colour theme">${iconSvg(state.themeMode==='light'?'moon':'sun',16)}</button>
+          <button class="welcome9-signin" data-action="open-auth" data-mode="login">Sign in</button>
         </div>
       </div>
     </header>
 
-    <main class="welcome8-main">
-      <section class="welcome8-hero">
-        <div class="welcome8-hero-copy">
-          <div class="welcome8-pill"><span></span> YOUR SSC STUDY SPACE</div>
-          <h1>Prepare with<br/><em>purpose.</em></h1>
-          <p>Practice smarter for your SSC exam with CBT-style mock tests, previous-year questions and focused topic practice — all in one place.</p>
-          <div class="welcome8-hero-actions">
-            <button class="welcome8-primary" data-action="start-free">Create your study space ${iconSvg('arrow-right',17)}</button>
-            <button class="welcome8-secondary" data-action="wl-goto" data-target="welcome8-platform">Explore platform</button>
+    <main class="welcome9-main">
+      <section class="welcome9-hero">
+        <div class="welcome9-hero-content">
+          <div class="welcome9-eyebrow"><span></span> A CLEARER WAY TO PREPARE</div>
+          <h1>Make your<br/>next study hour<br/><em>count.</em></h1>
+          <p>SSC preparation doesn't need more noise. Find your practice, revise with purpose and build confidence one session at a time.</p>
+          <div class="welcome9-hero-actions">
+            <button class="welcome9-primary" data-action="start-free">Get started <span>${iconSvg('arrow-right',17)}</span></button>
+            <button class="welcome9-text-link" data-action="wl-goto" data-target="welcome9-tools">See what's inside <span>↓</span></button>
           </div>
-          <div class="welcome8-social-proof"><span>${iconSvg('check-circle',14)} Exam-focused practice</span><span>${iconSvg('check-circle',14)} English & Hindi</span></div>
+          <div class="welcome9-proof"><span>${iconSvg('check-circle',14)} CBT-style mock tests</span><span>${iconSvg('check-circle',14)} Previous-year questions</span><span>${iconSvg('check-circle',14)} Topic-wise practice</span></div>
         </div>
+        <aside class="welcome9-side-note">
+          <div class="welcome9-side-top"><span>THE SSC FLIX APPROACH</span><span>01 — 03</span></div>
+          <div class="welcome9-side-line"><b>01</b><div><strong>Practise</strong><small>Test yourself in exam conditions.</small></div></div>
+          <div class="welcome9-side-line"><b>02</b><div><strong>Understand</strong><small>Learn from previous-year questions.</small></div></div>
+          <div class="welcome9-side-line"><b>03</b><div><strong>Improve</strong><small>Strengthen one topic at a time.</small></div></div>
+          <div class="welcome9-side-bottom">LESS DISTRACTION. MORE PREPARATION.</div>
+        </aside>
+        <div class="welcome9-hero-caption"><span>BUILT FOR SSC ASPIRANTS</span><span>FOCUS ON THE WORK THAT MATTERS</span></div>
+      </section>
 
-        <div class="welcome8-exam-preview" aria-label="Preview of a computer based test">
-          <div class="welcome8-preview-top"><div><span class="welcome8-preview-dot"></span><span>LIVE PRACTICE PREVIEW</span></div><span>SSC FLIX / CBT</span></div>
-          <div class="welcome8-preview-meta"><span>QUANTITATIVE APTITUDE</span><span>QUESTION 08 OF 25</span></div>
-          <div class="welcome8-progress"><span></span></div>
-          <h2>If the cost price of an article is ₹800 and the profit is 15%, what is its selling price?</h2>
-          <div class="welcome8-options">
-            <div><i>A</i><span>₹900</span></div><div class="welcome8-option-selected"><i>B</i><span>₹920</span><b>${iconSvg('check',13)}</b></div>
-            <div><i>C</i><span>₹940</span></div><div><i>D</i><span>₹960</span></div>
-          </div>
-          <div class="welcome8-preview-bottom"><span> CBT-STYLE INTERFACE</span><span>01:24 <i></i></span></div>
-          <span class="welcome8-preview-float">${iconSvg('target',16)} Practice with purpose</span>
+      <section class="welcome9-tools" id="welcome9-tools">
+        <div class="welcome9-section-head"><div><span class="welcome9-label">YOUR STUDY TOOLKIT</span><h2>Everything in its place.</h2></div><p>Three core ways to make your preparation more structured and effective.</p></div>
+        <div class="welcome9-tool-list">
+          <article><span class="welcome9-tool-index">01</span><span class="welcome9-tool-icon tool-purple">${iconSvg('monitor-check',22)}</span><div><h3>Mock tests</h3><p>Practise full-length and sectional tests in a CBT-style interface.</p></div><span class="welcome9-tool-arrow">${iconSvg('arrow-up-right',18)}</span></article>
+          <article><span class="welcome9-tool-index">02</span><span class="welcome9-tool-icon tool-blue">${iconSvg('history',22)}</span><div><h3>Previous-year questions</h3><p>Explore questions from past exams, years and shifts.</p></div><span class="welcome9-tool-arrow">${iconSvg('arrow-up-right',18)}</span></article>
+          <article><span class="welcome9-tool-index">03</span><span class="welcome9-tool-icon tool-green">${iconSvg('book-open-check',22)}</span><div><h3>Study & practice</h3><p>Focus on individual chapters and improve topic by topic.</p></div><span class="welcome9-tool-arrow">${iconSvg('arrow-up-right',18)}</span></article>
         </div>
       </section>
 
-      <div class="welcome8-trustbar"><span>BUILT FOR SSC ASPIRANTS</span><div><b>CGL</b><i></i><b>CHSL</b><i></i><b>CPO</b><i></i><b>MTS</b><i></i><b>GD</b><i></i><b>STENO</b></div></div>
-
-      <section class="welcome8-platform" id="welcome8-platform">
-        <div class="welcome8-section-heading"><div><span class="welcome8-eyebrow">ONE PLATFORM. THREE CORE TOOLS.</span><h2>Make every study hour count.</h2></div><p>Everything you need for a consistent preparation routine, without the clutter.</p></div>
-        <div class="welcome8-feature-grid">
-          <article class="welcome8-feature"><div class="welcome8-feature-top"><span>01</span><span class="welcome8-feature-icon feature-violet">${iconSvg('monitor-check',21)}</span></div><h3>Mock tests</h3><p>Experience the exam environment with full-length and sectional CBT practice.</p><div class="welcome8-feature-foot">BUILD SPEED & ACCURACY <span>↗</span></div></article>
-          <article class="welcome8-feature"><div class="welcome8-feature-top"><span>02</span><span class="welcome8-feature-icon feature-blue">${iconSvg('history',21)}</span></div><h3>Previous-year questions</h3><p>Practise real questions by exam, year and shift to understand the pattern.</p><div class="welcome8-feature-foot">LEARN FROM PYQS <span>↗</span></div></article>
-          <article class="welcome8-feature"><div class="welcome8-feature-top"><span>03</span><span class="welcome8-feature-icon feature-green">${iconSvg('book-open-check',21)}</span></div><h3>Study & practice</h3><p>Revise concepts and improve topic by topic with focused practice.</p><div class="welcome8-feature-foot">STRENGTHEN CONCEPTS <span>↗</span></div></article>
-        </div>
-      </section>
-
-      <section class="welcome8-setup" id="welcome8-setup">
-        <div class="welcome8-setup-heading"><span class="welcome8-eyebrow">GET STARTED IN MINUTES</span><h2>From setup to study.<br/>It's that simple.</h2><p>Personalise your workspace once, then focus on your preparation.</p><button class="welcome8-primary" data-action="start-free">Get started ${iconSvg('arrow-right',16)}</button></div>
-        <div class="welcome8-setup-list">
-          <article><span>01</span><div><b>Choose your exam</b><small>Pick the SSC exam you're targeting.</small></div><i>${iconSvg('arrow-down-right',17)}</i></article>
-          <article><span>02</span><div><b>Set your preferences</b><small>Choose your preferred study language.</small></div><i>${iconSvg('arrow-down-right',17)}</i></article>
-          <article><span>03</span><div><b>Start preparing</b><small>Enter your dashboard and practise.</small></div><i>${iconSvg('check',17)}</i></article>
-        </div>
+      <section class="welcome9-start" id="welcome9-start">
+        <div class="welcome9-start-copy"><span class="welcome9-label">A SIMPLE FIRST STEP</span><h2>Set up once.<br/><em>Then get to work.</em></h2><p>Choose your target exam, set your language preference and step into your study space.</p><button class="welcome9-primary" data-action="start-free">Set up my study space <span>${iconSvg('arrow-right',17)}</span></button></div>
+        <div class="welcome9-start-steps"><div><b>01</b><span><strong>Choose your exam</strong><small>Tell us what you're preparing for.</small></span></div><div><b>02</b><span><strong>Set your preferences</strong><small>Choose English or Hindi.</small></span></div><div><b>03</b><span><strong>Start preparing</strong><small>Your dashboard is ready.</small></span></div></div>
       </section>
     </main>
 
-    <footer class="welcome8-footer">
-      <div class="welcome8-footer-main"><button class="welcome8-brand" data-action="home-welcome"><span class="welcome8-logo">SF</span><span>SSC Flix</span></button><p>Your preparation, one focused step at a time.</p><button class="welcome8-pro" data-action="open-subscription">Explore Pro ${iconSvg('arrow-up-right',14)}</button></div>
-      <div class="welcome8-footer-bottom"><span>© ${new Date().getFullYear()} SSC Flix</span><span>Independent exam-preparation platform. Not affiliated with the Staff Selection Commission.</span></div>
+    <footer class="welcome9-footer">
+      <div class="welcome9-footer-top"><button class="welcome9-brand" data-action="home-welcome"><span class="welcome9-mark">SF</span><span>SSC Flix</span></button><span>Prepare with purpose. Progress with practice.</span><button data-action="open-subscription">Explore Pro ${iconSvg('arrow-up-right',14)}</button></div>
+      <div class="welcome9-footer-bottom"><span>© ${new Date().getFullYear()} SSC Flix</span><span>Independent exam-preparation platform · Not affiliated with the Staff Selection Commission.</span></div>
     </footer>
   </div>`;
 }
