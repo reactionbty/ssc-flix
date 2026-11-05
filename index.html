@@ -5,10 +5,42 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#f5f7fb">
   <title>SSC Flix — Exam Portal</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <link rel="stylesheet" href="style.css?v=20261105-sscflix-recovery">
+  <style>
+    .app-boot-loader,.app-boot-error{min-height:100vh;display:grid;place-content:center;justify-items:center;gap:12px;padding:24px;text-align:center;color:#1b2435;background:#f5f7fb;font:14px system-ui,sans-serif}
+    .app-boot-spinner{width:28px;height:28px;border:3px solid #dedcf0;border-top-color:#6254d9;border-radius:50%;animation:app-boot-spin .8s linear infinite}
+    .app-boot-error h1{margin:0;font-size:20px}.app-boot-error p{max-width:420px;margin:0;color:#687386;line-height:1.55}
+    .app-boot-error button{min-height:42px;padding:0 18px;border:0;border-radius:9px;background:#6254d9;color:#fff;font-weight:700}
+    @keyframes app-boot-spin{to{transform:rotate(360deg)}}
+  </style>
+  <script>
+    (function () {
+      var root;
+      function showBootError(message) {
+        root = root || document.getElementById('app');
+        if (!root || !root.querySelector('.app-boot-loader')) return;
+        root.innerHTML = '<main class="app-boot-error"><h1>SSC Flix could not start</h1><p>' +
+          String(message || 'The app did not finish loading. Please reload the page.') +
+          '</p><button type="button" onclick="window.location.reload()">Reload website</button></main>';
+      }
+      window.addEventListener('error', function (event) {
+        if (event && (event.target instanceof HTMLScriptElement || event.target instanceof HTMLLinkElement)) {
+          showBootError('A website file could not be loaded. Please reload the page or try again in a moment.');
+        } else if (event && event.message) {
+          showBootError('The website encountered a startup error. Please reload the page.');
+        }
+      }, true);
+      window.addEventListener('unhandledrejection', function () {
+        showBootError('The website encountered a startup error. Please reload the page.');
+      });
+      window.setTimeout(function () {
+        showBootError('The website is taking too long to start. Check your connection and reload.');
+      }, 10000);
+    })();
+  </script>
+  <script src="script.js?v=20261105-sscflix-recovery" defer></script>
 </head>
 <body>
-  <div id="app" aria-live="polite"></div>
+  <div id="app" aria-live="polite"><div class="app-boot-loader"><span class="app-boot-spinner"></span><strong>Loading SSC Flix…</strong></div></div>
 </body>
 </html>
