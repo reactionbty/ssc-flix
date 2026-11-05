@@ -1804,6 +1804,8 @@ function renderModal() {
   return '';
 }
 function render() {
+  // Authenticated returning users should resume in their dashboard, not the public welcome page.
+  if (state.activeTab === 'landing' && state.welcomeCompleted && state.user.isLoggedIn) state.activeTab = 'dashboard';
   // Any re-render closes the navigation drawer: navigating from the menu,
   // opening the engine or a modal must never leave the drawer open behind.
   document.body.classList.remove('nav-open');
