@@ -918,60 +918,73 @@ function renderExamSwitcher() {
   </div>`;
 }
 function renderWelcome() {
-  const examCategories = { cgl: 'graduate', chsl: 'secondary', cpo: 'police', mts: 'secondary', steno: 'secondary', gd: 'police' };
-  const filters = [['all', 'All exams'], ['graduate', 'Graduate level'], ['secondary', '10+2 level'], ['police', 'Defence & police']];
-  const visibleExams = EXAM_CATEGORIES.filter(item => exam.workspaceFilter === 'all' || examCategories[item.id] === exam.workspaceFilter);
-  const examCards = visibleExams.map(item => `<article class="welcome-exam-card ${item.id === state.selectedExamId ? 'selected' : ''}" data-exam-card="${item.id}">
-    <div class="welcome-exam-top"><span class="welcome-exam-icon">${examIconSvg(item.id, 21)}</span>${item.id === state.selectedExamId ? '<span class="welcome-selected">YOUR TARGET</span>' : '<span class="welcome-exam-days">' + item.targetDays + ' days</span>'}</div>
-    <h3>${esc(item.code)}</h3><p>${esc(item.name)}</p>
-    <div class="welcome-exam-meta"><span>${item.tier}</span><span>${item.totalMocks} mock tests</span></div>
-    <button class="welcome-exam-action" data-action="choose-exam" data-exam="${item.id}">Open workspace ${iconSvg('arrow-right', 14)}</button>
-  </article>`).join('');
-  const features = [
-    ['monitor', 'Realistic CBT practice', 'Timed tests with section switching, question palettes, and review controls.'],
-    ['book-open', 'Learn while you practise', 'Study mode reveals hints and explanations as you work through questions.'],
-    ['chart', 'Review your performance', 'Use your test history and score summaries to spot topics that need attention.'],
-    ['zap', 'Focused chapter sessions', 'Move from full mocks to short, subject-wise practice whenever you need.']
+  const examCategories = { cgl:'graduate', chsl:'secondary', cpo:'police', mts:'secondary', steno:'secondary', gd:'police' };
+  const filters = [['all','All exams'],['graduate','Graduate level'],['secondary','10+2 level'],['police','Defence & police']];
+  const visible = EXAM_CATEGORIES.filter(item => exam.workspaceFilter === 'all' || examCategories[item.id] === exam.workspaceFilter);
+  const cards = visible.map(item => {
+    const selected = item.id === state.selectedExamId;
+    return `<article class="welcome2-exam-card ${selected ? 'selected' : ''}">
+      <div class="welcome2-exam-top"><span class="welcome2-exam-icon">${examIconSvg(item.id,19)}</span>${selected ? '<span class="welcome2-selected-tag">YOUR TARGET</span>' : '<span class="welcome2-exam-tier">' + esc(item.tier) + '</span>'}</div>
+      <div class="welcome2-exam-name"><h3>${esc(item.code)}</h3><p>${esc(item.name)}</p></div>
+      <div class="welcome2-exam-meta"><span>${esc(item.tier)}</span><span>${item.totalMocks} mock tests listed</span></div>
+      <button class="welcome2-exam-action" data-action="choose-exam" data-exam="${item.id}"><span>Explore workspace</span>${iconSvg('arrow-up-right',14)}</button>
+    </article>`;
+  }).join('');
+  const featureData = [
+    ['monitor','CBT-style mock tests','Timed papers with a familiar question palette, section switching, and review controls.'],
+    ['history','Previous-year questions','Practise shift-wise papers and become familiar with real exam question patterns.'],
+    ['book-open','Chapter-wise practice','Focus on one topic at a time, use study mode, and review explanations.']
   ];
-  return `<div class="welcome-v4">
-    <div class="welcome-announcement"><span>SSC FLIX</span><p>A focused workspace for your SSC preparation</p><span class="welcome-announcement-note">DEMO PORTAL</span></div>
-    <header class="welcome-nav">
-      <button class="welcome-brand" data-action="home-welcome" aria-label="Open Welcome page"><span class="welcome-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
-      <div class="welcome-nav-actions">
-        <button class="welcome-nav-control" data-action="toggle-language" title="Switch language">${iconSvg('globe', 15)} <span>${isHindi() ? 'HI' : 'EN'}</span></button>
-        <button class="welcome-nav-control" data-action="toggle-mode" title="${state.themeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}">${iconSvg(state.themeMode === 'light' ? 'moon' : 'sun', 15)}</button>
-        <button class="welcome-sign-in" data-action="open-auth" data-mode="login">Sign in</button>
+  const features = featureData.map((item,i) => `<article class="welcome2-feature-card">
+    <span class="welcome2-feature-number">0${i+1}</span><span class="welcome2-feature-icon">${iconSvg(item[0],18)}</span>
+    <h3>${item[1]}</h3><p>${item[2]}</p>
+  </article>`).join('');
+  return `<div class="welcome2-page">
+    <header class="welcome2-header"><div class="welcome2-header-inner">
+      <button class="welcome2-brand" data-action="home-welcome" aria-label="SSC Flix home"><span class="welcome2-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
+      <nav class="welcome2-nav" aria-label="Main navigation"><button data-action="wl-goto" data-target="wl-exams">Exams</button><button data-action="wl-goto" data-target="wl-features">Features</button></nav>
+      <div class="welcome2-header-actions">
+        <button class="welcome2-icon-control" data-action="toggle-language" title="Switch language">${iconSvg('globe',15)}<span>${isHindi()?'HI':'EN'}</span></button>
+        <button class="welcome2-icon-control" data-action="toggle-mode" title="${state.themeMode==='light'?'Switch to dark mode':'Switch to light mode'}">${iconSvg(state.themeMode==='light'?'moon':'sun',16)}</button>
+        <button class="welcome2-signin" data-action="open-auth" data-mode="login">Sign in</button>
       </div>
-    </header>
-    <main class="welcome-main" id="welcome-top">
-      <section class="welcome-hero-v4">
-        <div class="welcome-hero-copy">
-          <span class="welcome-kicker"><span></span> PREPARE WITH A CLEAR PLAN</span>
-          <h1>Make every practice session <em>count.</em></h1>
-          <p>A clean, focused SSC preparation portal for mock tests, previous-year questions, and chapter-wise practice — all in one place.</p>
-          <div class="welcome-hero-actions"><button class="btn btn-primary" data-action="start-free">${iconSvg('play-circle', 16)} Try a free mock</button><button class="btn btn-secondary" data-action="wl-goto" data-target="wl-exams">Explore exams ${iconSvg('arrow-down', 14)}</button></div>
-          <div class="welcome-trust-row"><span>${iconSvg('check-circle', 14)} CBT-style practice</span><span>${iconSvg('check-circle', 14)} English & Hindi</span><span>${iconSvg('check-circle', 14)} Study mode</span></div>
+    </div></header>
+    <main class="welcome2-main" id="welcome-top">
+      <section class="welcome2-hero">
+        <div class="welcome2-hero-copy">
+          <span class="welcome2-eyebrow"><i></i> YOUR SSC PREPARATION WORKSPACE</span>
+          <h1>Make your preparation <em>count.</em></h1>
+          <p class="welcome2-hero-description">A focused place to practise mock tests, solve previous-year questions, and strengthen every chapter — without the clutter.</p>
+          <div class="welcome2-hero-actions">
+            <button class="btn btn-primary" data-action="start-free">${iconSvg('play-circle',16)} Start a free mock</button>
+            <button class="welcome2-secondary-cta" data-action="wl-goto" data-target="wl-exams">Choose your exam ${iconSvg('arrow-down',14)}</button>
+          </div>
+          <div class="welcome2-proof-row"><span>${iconSvg('check-circle',14)} CBT-style practice</span><span>${iconSvg('check-circle',14)} English & Hindi</span><span>${iconSvg('check-circle',14)} Study mode</span></div>
         </div>
-        <aside class="welcome-preview-card">
-          <div class="welcome-preview-head"><div><span>YOUR STUDY SPACE</span><strong>One workspace. Multiple exams.</strong></div><span class="welcome-live-dot">●</span></div>
-          <div class="welcome-preview-exam"><span>${examIconSvg(currentExam().id, 23)}</span><div><small>CURRENT TARGET</small><strong>${esc(currentExam().code)}</strong></div><button data-action="wl-goto" data-target="wl-exams" aria-label="Choose exam">${iconSvg('chevron-down', 15)}</button></div>
-          <div class="welcome-preview-divider"></div>
-          <div class="welcome-preview-stats"><div><strong>01</strong><small>Pick a paper</small></div><div><strong>02</strong><small>Attempt questions</small></div><div><strong>03</strong><small>Review answers</small></div></div>
-          <p class="welcome-preview-note">A demonstration workspace — sample scores and test data are illustrative.</p>
+        <aside class="welcome2-preview" aria-label="Study workspace preview">
+          <div class="welcome2-preview-top"><div><span class="welcome2-preview-kicker">WORKSPACE PREVIEW</span><strong>Everything in one place.</strong></div><span class="welcome2-preview-chip">DEMO</span></div>
+          <div class="welcome2-preview-target"><span class="welcome2-preview-target-icon">${examIconSvg(currentExam().id,21)}</span><span><small>YOUR SELECTED EXAM</small><strong>${esc(currentExam().code)}</strong></span><button data-action="wl-goto" data-target="wl-exams" aria-label="Change target exam">${iconSvg('chevron-down',15)}</button></div>
+          <div class="welcome2-preview-divider"></div>
+          <div class="welcome2-preview-list">
+            <div><span class="welcome2-preview-item-icon">${iconSvg('file-text',16)}</span><span><strong>Mock tests</strong><small>Timed full-length and sectional practice</small></span><b>01</b></div>
+            <div><span class="welcome2-preview-item-icon">${iconSvg('history',16)}</span><span><strong>Previous-year questions</strong><small>Shift-wise paper practice</small></span><b>02</b></div>
+            <div><span class="welcome2-preview-item-icon">${iconSvg('book-open',16)}</span><span><strong>Chapter practice</strong><small>Focused topic-wise sessions</small></span><b>03</b></div>
+          </div>
+          <p class="welcome2-preview-footnote">Demonstration workspace. Sample questions and performance data are illustrative.</p>
         </aside>
       </section>
-      <section class="welcome-exams-section" id="wl-exams">
-        <div class="welcome-section-heading"><div><span class="welcome-kicker-small">CHOOSE YOUR PATH</span><h2>Which exam are you preparing for?</h2><p>Select your target to open a workspace built around that exam.</p></div></div>
-        <div class="welcome-filter-row">${filters.map(([id, label]) => `<button class="welcome-filter ${exam.workspaceFilter === id ? 'active' : ''}" data-action="wl-filter" data-cat="${id}">${label}</button>`).join('')}</div>
-        <div class="welcome-exam-grid">${examCards || '<div class="empty-state">No exams match this filter.</div>'}</div>
+      <section class="welcome2-exams" id="wl-exams">
+        <div class="welcome2-section-heading"><div><span class="welcome2-section-kicker">FIND YOUR WORKSPACE</span><h2>Choose your target exam.</h2><p>Select an exam to open its preparation workspace.</p></div><span class="welcome2-section-count">06 EXAMS</span></div>
+        <div class="welcome2-filter-row">${filters.map(([id,label]) => `<button class="welcome2-filter ${exam.workspaceFilter===id?'active':''}" data-action="wl-filter" data-cat="${id}" aria-pressed="${exam.workspaceFilter===id}">${label}</button>`).join('')}</div>
+        <div class="welcome2-exam-grid">${cards || '<div class="empty-state">No exams match this filter.</div>'}</div>
       </section>
-      <section class="welcome-features-section">
-        <div class="welcome-section-heading"><div><span class="welcome-kicker-small">BUILT FOR PRACTICE</span><h2>Everything you need. Nothing in the way.</h2><p>Keep the important study tools close and the interface out of your way.</p></div></div>
-        <div class="welcome-feature-grid">${features.map(([icon, title, copy], index) => `<article class="welcome-feature-card"><span class="welcome-feature-index">0${index + 1}</span><span class="welcome-feature-icon">${iconSvg(icon, 19)}</span><h3>${title}</h3><p>${copy}</p></article>`).join('')}</div>
+      <section class="welcome2-features" id="wl-features">
+        <div class="welcome2-section-heading"><div><span class="welcome2-section-kicker">MADE FOR DAILY PRACTICE</span><h2>The tools you need. Nothing extra.</h2><p>Move from learning to practice to review in one consistent workspace.</p></div></div>
+        <div class="welcome2-feature-grid">${features}</div>
       </section>
-      <section class="welcome-bottom-cta"><div><span class="welcome-kicker-small">READY WHEN YOU ARE</span><h2>Start with one paper today.</h2><p>Choose an exam and make your next session count.</p></div><button class="btn btn-primary" data-action="start-free">${iconSvg('play', 14)} Start a free mock</button></section>
+      <section class="welcome2-bottom"><div><span class="welcome2-section-kicker">START WITH ONE SESSION</span><h2>Your next focused session starts here.</h2><p>Choose your exam and begin with a free diagnostic mock.</p></div><button class="btn btn-primary" data-action="start-free">${iconSvg('play',14)} Try a free mock ${iconSvg('arrow-right',14)}</button></section>
     </main>
-    <footer class="welcome-footer"><span>© ${new Date().getFullYear()} SSC Flix</span><span>Independent exam-preparation demo · Not affiliated with the Staff Selection Commission.</span><button data-action="open-subscription">View Pro plans</button></footer>
+    <footer class="welcome2-footer"><div class="welcome2-footer-brand"><span class="welcome2-brand-mark">SF</span><strong>SSC Flix</strong></div><p>Independent exam-preparation demo. Not affiliated with the Staff Selection Commission.</p><button data-action="open-subscription">View Pro plans</button></footer>
   </div>`;
 }
 function renderFirstWelcome() {
