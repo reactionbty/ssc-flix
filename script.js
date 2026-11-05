@@ -918,82 +918,71 @@ function renderExamSwitcher() {
   </div>`;
 }
 function renderWelcome() {
-  const examCategories = { cgl:'graduate', chsl:'secondary', cpo:'police', mts:'secondary', steno:'secondary', gd:'police' };
-  const filters = [['all','All exams'],['graduate','Graduate level'],['secondary','10+2 level'],['police','Defence & police']];
-  const visible = EXAM_CATEGORIES.filter(item => exam.workspaceFilter === 'all' || examCategories[item.id] === exam.workspaceFilter);
-  const cards = visible.map(item => {
-    const selected = item.id === state.selectedExamId;
-    return `<article class="welcome4-exam-card ${selected ? 'is-selected' : ''}">
-      <span class="welcome4-exam-icon">${examIconSvg(item.id,22)}</span>
-      <span class="welcome4-exam-info"><strong>${esc(item.code)}</strong><small>${esc(item.name)}</small><span class="welcome4-exam-meta">${item.tier} <i></i> ${item.totalMarks} marks</span></span>
-      <button class="welcome4-exam-choose" data-action="choose-exam" data-exam="${item.id}" aria-label="Choose ${esc(item.code)}">${selected ? 'Continue' : 'Choose exam'} ${iconSvg('arrow-right',15)}</button>
-    </article>`;
-  }).join('');
-
-  return `<div class="welcome4-page">
-    <header class="welcome4-header">
-      <div class="welcome4-header-inner">
-        <button class="welcome4-brand" data-action="home-welcome" aria-label="SSC Flix home"><span class="welcome4-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
-        <nav class="welcome4-nav" aria-label="Main navigation">
-          <button data-action="wl-goto" data-target="welcome4-exams">Exams</button>
-          <button data-action="wl-goto" data-target="welcome4-steps">How it works</button>
+  return `<div class="welcome5-page">
+    <header class="welcome5-header">
+      <div class="welcome5-header-inner">
+        <button class="welcome5-brand" data-action="home-welcome" aria-label="SSC Flix home"><span class="welcome5-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
+        <nav class="welcome5-nav" aria-label="Main navigation">
+          <button data-action="wl-goto" data-target="welcome5-features">Features</button>
+          <button data-action="wl-goto" data-target="welcome5-steps">How it works</button>
         </nav>
-        <div class="welcome4-actions">
-          <button class="welcome4-tool" data-action="toggle-language" aria-label="Switch language">${iconSvg('globe',16)} <span>${isHindi()?'HI':'EN'}</span></button>
-          <button class="welcome4-tool welcome4-theme" data-action="toggle-mode" aria-label="Toggle colour theme">${iconSvg(state.themeMode==='light'?'moon':'sun',17)}</button>
-          <button class="welcome4-signin" data-action="open-auth" data-mode="login">Sign in</button>
+        <div class="welcome5-actions">
+          <button class="welcome5-tool" data-action="toggle-language" aria-label="Switch language">${iconSvg('globe',16)} <span>${isHindi()?'HI':'EN'}</span></button>
+          <button class="welcome5-tool" data-action="toggle-mode" aria-label="Toggle colour theme">${iconSvg(state.themeMode==='light'?'moon':'sun',17)}</button>
+          <button class="welcome5-signin" data-action="open-auth" data-mode="login">Sign in</button>
         </div>
       </div>
     </header>
 
-    <main class="welcome4-main">
-      <section class="welcome4-hero">
-        <div class="welcome4-copy">
-          <span class="welcome4-eyebrow"><i></i> YOUR SSC PREPARATION, IN ONE PLACE</span>
+    <main class="welcome5-main">
+      <section class="welcome5-hero">
+        <div class="welcome5-copy">
+          <span class="welcome5-eyebrow"><i></i> YOUR SSC PREPARATION, IN ONE PLACE</span>
           <h1>Make every<br/><em>study session</em><br/>count.</h1>
-          <p>Prepare smarter with exam-style mock tests, previous-year questions and focused chapter practice — built around the SSC exams you’re targeting.</p>
-          <div class="welcome4-hero-actions">
-            <button class="welcome4-primary" data-action="wl-goto" data-target="welcome4-exams">Choose your exam ${iconSvg('arrow-right',17)}</button>
-            <button class="welcome4-secondary" data-action="start-free">${iconSvg('play-circle',17)} Get started</button>
+          <p>Everything you need to prepare smarter for SSC exams — realistic mock tests, previous-year questions and focused topic practice, all in one place.</p>
+          <div class="welcome5-hero-actions">
+            <button class="welcome5-primary" data-action="start-free">Get started ${iconSvg('arrow-right',17)}</button>
+            <button class="welcome5-secondary" data-action="wl-goto" data-target="welcome5-features">${iconSvg('play-circle',17)} Explore features</button>
           </div>
-          <div class="welcome4-trust"><span>${iconSvg('check-circle',15)} CBT-style practice</span><span>${iconSvg('check-circle',15)} Study mode</span><span>${iconSvg('check-circle',15)} PYQ library</span></div>
+          <div class="welcome5-trust"><span>${iconSvg('check-circle',15)} CBT-style practice</span><span>${iconSvg('check-circle',15)} Study mode</span><span>${iconSvg('check-circle',15)} PYQ library</span></div>
         </div>
-        <div class="welcome4-preview" aria-label="Preview of SSC Flix study workspace">
-          <div class="welcome4-preview-head"><div><span class="welcome4-preview-label">YOUR PREPARATION SPACE</span><strong>Everything you need to improve.</strong></div><span class="welcome4-preview-logo">SF</span></div>
-          <div class="welcome4-preview-feature">
-            <span class="welcome4-preview-icon violet">${iconSvg('monitor',20)}</span><span><strong>Mock tests</strong><small>Full-length and sectional CBTs</small></span><span class="welcome4-preview-number">01</span>
+        <div class="welcome5-preview" id="welcome5-features" aria-label="SSC Flix features">
+          <div class="welcome5-preview-head"><div><span class="welcome5-preview-label">YOUR PREPARATION SPACE</span><strong>Everything you need to improve.</strong></div><span class="welcome5-preview-logo">SF</span></div>
+          <div class="welcome5-feature">
+            <span class="welcome5-feature-icon violet">${iconSvg('monitor',20)}</span><span><strong>Mock tests</strong><small>Full-length and sectional CBTs</small></span><span class="welcome5-feature-number">01</span>
           </div>
-          <div class="welcome4-preview-feature">
-            <span class="welcome4-preview-icon blue">${iconSvg('history',20)}</span><span><strong>Previous-year questions</strong><small>Practise by exam, year and shift</small></span><span class="welcome4-preview-number">02</span>
+          <div class="welcome5-feature">
+            <span class="welcome5-feature-icon blue">${iconSvg('history',20)}</span><span><strong>Previous-year questions</strong><small>Practise by exam, year and shift</small></span><span class="welcome5-feature-number">02</span>
           </div>
-          <div class="welcome4-preview-feature">
-            <span class="welcome4-preview-icon green">${iconSvg('book-open',20)}</span><span><strong>Chapter practice</strong><small>Strengthen one topic at a time</small></span><span class="welcome4-preview-number">03</span>
+          <div class="welcome5-feature">
+            <span class="welcome5-feature-icon green">${iconSvg('book-open',20)}</span><span><strong>Chapter practice</strong><small>Strengthen one topic at a time</small></span><span class="welcome5-feature-number">03</span>
           </div>
-          <div class="welcome4-preview-bottom"><span class="welcome4-status-dot"></span> A focused space for your next step</div>
+          <div class="welcome5-preview-bottom"><span></span> A focused space for your next step</div>
         </div>
-        <div class="welcome4-exam-strip"><span>PREPARE FOR</span><b>SSC CGL</b><i></i><b>CHSL</b><i></i><b>CPO</b><i></i><b>MTS</b><i></i><b>GD</b><i></i><b>STENOGRAPHER</b></div>
       </section>
 
-      <section class="welcome4-exams" id="welcome4-exams">
-        <div class="welcome4-section-heading"><div><span class="welcome4-section-kicker">START WITH YOUR TARGET</span><h2>Which exam are you preparing for?</h2><p>Choose an exam to personalise your study space. You can change it later.</p></div><span class="welcome4-section-index">01 <i></i> 03</span></div>
-        <div class="welcome4-filters">
-          ${filters.map(([id,label])=>`<button class="welcome4-filter ${exam.workspaceFilter===id?'active':''}" data-action="wl-filter" data-cat="${id}" aria-pressed="${exam.workspaceFilter===id}">${label}</button>`).join('')}
+      <section class="welcome5-steps" id="welcome5-steps">
+        <div class="welcome5-steps-heading"><span class="welcome5-kicker">GET STARTED IN THREE STEPS</span><h2>Your preparation.<br/>Your pace. Your progress.</h2><p>Start with a quick setup and get straight to studying.</p></div>
+        <div class="welcome5-step-grid">
+          <article><span>01</span><div><strong>Choose your exam</strong><p>Select the SSC exam you’re targeting.</p></div></article>
+          <article><span>02</span><div><strong>Set your preferences</strong><p>Pick English or Hindi as your study language.</p></div></article>
+          <article><span>03</span><div><strong>Start preparing</strong><p>Open your dashboard and begin practising.</p></div></article>
         </div>
-        <div class="welcome4-exam-grid">${cards || '<div class="empty-state">No exams match this filter.</div>'}</div>
-        <p class="welcome4-exam-note">${iconSvg('info',14)} Your exam selection will be saved and used to set up your dashboard.</p>
       </section>
-
-      <section class="welcome4-steps" id="welcome4-steps">
-        <div class="welcome4-steps-heading"><span class="welcome4-section-kicker">GET STARTED IN THREE STEPS</span><h2>A study space that starts with you.</h2></div>
-        <div class="welcome4-step-grid">
-          <article><span class="welcome4-step-number">01</span><div><strong>Choose your exam</strong><p>Select the SSC exam you’re targeting.</p></div></article>
-          <article><span class="welcome4-step-number">02</span><div><strong>Set your preferences</strong><p>Pick English or Hindi as your study language.</p></div></article>
-          <article><span class="welcome4-step-number">03</span><div><strong>Start preparing</strong><p>Open your dashboard and begin practising.</p></div></article>
-        </div>
+      <section class="welcome5-final-cta">
+        <div><span class="welcome5-kicker">READY WHEN YOU ARE</span><h2>Your next step starts here.</h2><p>Set up your study space and begin your SSC preparation.</p></div>
+        <button class="welcome5-primary" data-action="start-free">Get started ${iconSvg('arrow-right',17)}</button>
       </section>
     </main>
 
-    <footer class="welcome4-footer"><button class="welcome4-brand" data-action="home-welcome"><span class="welcome4-brand-mark">SF</span><span>SSC <b>Flix</b></span></button><span>Independent exam-preparation workspace · Not affiliated with the Staff Selection Commission.</span><button data-action="open-subscription">Explore Pro ${iconSvg('arrow-up-right',14)}</button></footer>
+    <footer class="welcome5-footer">
+      <div class="welcome5-footer-main">
+        <button class="welcome5-brand" data-action="home-welcome"><span class="welcome5-brand-mark">SF</span><span>SSC <b>Flix</b></span></button>
+        <p>A focused space to prepare, practise and improve.</p>
+        <button class="welcome5-pro-link" data-action="open-subscription">Explore Pro ${iconSvg('arrow-up-right',14)}</button>
+      </div>
+      <div class="welcome5-footer-bottom"><span>© ${new Date().getFullYear()} SSC Flix</span><span>Independent exam-preparation workspace · Not affiliated with the Staff Selection Commission.</span></div>
+    </footer>
   </div>`;
 }
 function renderFirstWelcome() {
